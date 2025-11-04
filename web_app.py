@@ -1392,102 +1392,148 @@ def _render_predict_form():
     <link rel="icon" href="/logo.png" type="image/png"/>
     <style>
       body{font-family:system-ui,Arial;margin:20px;background:linear-gradient(180deg,#071028 0%, #0e1015 100%);color:#e7e9ee}
-      textarea{width:100%;height:220px;border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,0.02);color:#e7e9ee}
-      .btn{padding:10px 14px;margin-top:10px;border-radius:10px;border:none;background:linear-gradient(90deg,#7c5cff,#21d4fd);color:#fff;cursor:pointer;box-shadow:0 8px 24px rgba(34,19,133,.25);transform:translateY(0);transition:all .22s ease}
-      .btn:active{transform:translateY(1px) scale(.995)}
-      .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);align-items:center;justify-content:center;animation:fadeIn .18s ease}
-      .card{background:#0f1720;border-radius:12px;padding:18px;max-width:560px;width:92%;box-shadow:0 10px 40px rgba(0,0,0,.6);border:1px solid rgba(124,92,255,.08);transform:translateY(20px);animation:popIn .25s ease forwards}
-      @keyframes popIn{to{transform:translateY(0);opacity:1}}
-      @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-      .logo{height:48px;display:block;margin:0 0 14px}
-      .pulse{display:inline-block;padding:6px 10px;border-radius:999px;background:linear-gradient(90deg,#21d4fd,#7c5cff);animation:glow 2.6s infinite}
-      @keyframes glow{0%{box-shadow:0 4px 18px rgba(124,92,255,.08)}50%{box-shadow:0 14px 40px rgba(33,212,253,.12)}100%{box-shadow:0 4px 18px rgba(124,92,255,.08)}}
-      .close{float:right;cursor:pointer;border:none;background:transparent;color:#cbd5e1;font-size:14px}
+      textarea{width:100%;height:200px;border-radius:10px;padding:12px;border:1px solid rgba(255,255,255,.06);background:rgba(255,255,255,0.02);color:#e7e9ee;resize:vertical}
+      .btn{padding:10px 14px;margin-top:10px;border-radius:10px;border:none;background:linear-gradient(90deg,#7c5cff,#21d4fd);color:#fff;cursor:pointer}
       .muted{color:#94a3b8}
-      .loader{width:18px;height:18px;border-radius:50%;border:3px solid rgba(255,255,255,.08);border-top-color:#7c5cff;animation:spin .9s linear infinite;display:inline-block}
-      @keyframes spin{to{transform:rotate(360deg)}}
       .row{margin:8px 0;color:#cbd5e1}
+      .examples{display:flex;gap:8px;margin-bottom:10px}
+      .ex-btn{padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,.06);background:transparent;color:#e7e9ee;cursor:pointer}
+      .ex-btn.tf{background:linear-gradient(90deg,#2dbb6f,#7c5cff)}
+      .ex-btn.notf{background:linear-gradient(90deg,#777,#444)}
+      .warning{color:#ffb4b4;margin-top:8px}
+      .card{background:#0f1720;border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,.04);margin-top:12px}
+      .label-tf{color:#7cfc9a;font-weight:700}
+      .label-notf{color:#fca5a5;font-weight:700}
+      .small{font-size:13px;color:#9ca3b0}
+      .loader{width:16px;height:16px;border-radius:50%;border:3px solid rgba(255,255,255,.06);border-top-color:#7c5cff;animation:spin .9s linear infinite;display:inline-block;vertical-align:middle}
+      @keyframes spin{to{transform:rotate(360deg)}}
     </style>
     </head><body>
-    <img class="logo" src="/logo.png" alt="Logo" />
-    <h2 style="margin:6px 0 8px">Predictor de Factores de Transcripción <span class="pulse">Online</span></h2>
-    <form id="predictForm">
-      <textarea name="sequence" id="sequence" placeholder="Pega tu secuencia..."></textarea>
-      <br/>
-      <button class="btn" type="submit">Predecir</button>
-    </form>
+    <h2>Predictor de Factores de Transcripción</h2>
 
-    <div class="modal" id="resultModal" role="dialog" aria-hidden="true">
-      <div class="card" role="document">
-        <button class="close" id="closeModal" aria-label="Cerrar">✕</button>
-        <h3>Resultado de Predicción <span id="spin" style="display:none" class="loader"></span></h3>
-        <div class="row" id="labelRow"></div>
-        <div class="row" id="confRow"></div>
-        <div class="row muted" id="cachedRow"></div>
-        <div id="msgRow" style="display:none;color:#ffb4b4"></div>
-        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:12px">
-          <button class="btn" id="newPredBtn" type="button">Nueva predicción</button>
-          <button class="btn" id="backBtn" type="button">Volver atrás</button>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div style="flex:1">
+          <div class="examples" aria-hidden="false">
+            <button type="button" id="exampleTF" class="ex-btn tf">Ejemplo TF</button>
+            <button type="button" id="exampleNoTF" class="ex-btn notf">Ejemplo No-TF</button>
+            <button type="button" id="clearBtn" class="ex-btn">Limpiar</button>
+          </div>
+          <form id="predictForm">
+            <textarea name="sequence" id="sequence" placeholder="Pega tu secuencia de aminoácidos (20 AA estándar) ..."></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px">
+              <button class="btn" type="submit">Predecir</button>
+              <button type="button" id="btnQuick" class="btn" style="background:#444">Predecir rápido</button>
+            </div>
+          </form>
+        </div>
+        <div style="width:260px;margin-left:12px">
+          <div class="small">Consejos</div>
+          <ul class="small">
+            <li>La secuencia debe usar los 20 aminoácidos estándar (A,C,D,...,Y).</li>
+            <li>Longitud mínima: 50 aa. Si no cumple, se marcará como No-TF automáticamente.</li>
+            <li>Ejemplos arriba para probar rápidamente.</li>
+          </ul>
         </div>
       </div>
+      <div id="formMsg" class="warning" style="display:none"></div>
+    </div>
+
+    <div class="card" id="resultCard" style="display:none;margin-top:18px">
+      <h3>Resultado</h3>
+      <div id="labelRow" class="row"></div>
+      <div id="confRow" class="row"></div>
+      <div id="qualityRow" class="row small"></div>
+      <div id="cachedRow" class="row small muted"></div>
+      <div id="detailsRow" class="row small"></div>
+      <div style="margin-top:8px;text-align:right"><button id="reset" class="btn" type="button">Nueva</button></div>
     </div>
 
     <script>
+      const seqInput = document.getElementById('sequence');
       const form = document.getElementById('predictForm');
-      const modal = document.getElementById('resultModal');
-      const closeBtn = document.getElementById('closeModal');
-      const newPredBtn = document.getElementById('newPredBtn');
-      const backBtn = document.getElementById('backBtn');
+      const resultCard = document.getElementById('resultCard');
       const labelRow = document.getElementById('labelRow');
       const confRow = document.getElementById('confRow');
+      const qualityRow = document.getElementById('qualityRow');
       const cachedRow = document.getElementById('cachedRow');
-      const msgRow = document.getElementById('msgRow');
-      const seqInput = document.getElementById('sequence');
-      const spin = document.getElementById('spin');
+      const detailsRow = document.getElementById('detailsRow');
+      const formMsg = document.getElementById('formMsg');
 
-      const openModal = () => { modal.style.display = 'flex'; modal.setAttribute('aria-hidden','false'); }
-      const hideModal = () => { modal.style.display = 'none'; modal.setAttribute('aria-hidden','true'); msgRow.style.display='none'; msgRow.textContent=''; }
+      const exampleTF = document.getElementById('exampleTF');
+      const exampleNoTF = document.getElementById('exampleNoTF');
+      const clearBtn = document.getElementById('clearBtn');
+      const resetBtn = document.getElementById('reset');
+      const btnQuick = document.getElementById('btnQuick');
 
-      closeBtn.onclick = () => { hideModal(); try { form.reset(); } catch(e){}; seqInput.focus(); };
-      window.onclick = (e) => { if (e.target === modal) { hideModal(); seqInput.focus(); } };
+      const TF_EX = "MGRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEI";
+      const NO_TF_EX = "AAAAATTTAAATTAAAGGGACACAGAACATAGACAGTACGTAGG";
 
-      newPredBtn.onclick = async () => { hideModal(); try{ form.reset(); }catch{}; seqInput.focus(); };
+      exampleTF.onclick = () => { seqInput.value = TF_EX; seqInput.focus(); };
+      exampleNoTF.onclick = () => { seqInput.value = NO_TF_EX; seqInput.focus(); };
+      clearBtn.onclick = () => { seqInput.value = ""; seqInput.focus(); };
+      resetBtn.onclick = () => { resultCard.style.display='none'; seqInput.focus(); formMsg.style.display='none'; seqInput.value=''; };
 
-      backBtn.onclick = ()=>{ try{ hideModal(); }catch{}; try{ window.history.back(); }catch{} };
+      async function doPredict(seq){
+        formMsg.style.display='none';
+        try{
+          const spinner = document.createElement('span'); spinner.className='loader';
+          const body = {sequence: seq};
+          btnQuick.disabled = true;
+          const r = await fetch('/api/predict', {
+            method:'POST', credentials: 'same-origin',
+            headers:{'Content-Type':'application/json','Accept':'application/json'},
+            body: JSON.stringify(body)
+          });
+          btnQuick.disabled = false;
+          if (!r.ok){
+            const txt = await r.text();
+            formMsg.style.display='block'; formMsg.textContent = 'Error: '+(txt || r.status);
+            return;
+          }
+          const data = await r.json();
+          // Etiqueta y confianza
+          const label = data.label || (data.class===1 ? 'TF' : 'No-TF');
+          const conf = data.confidence != null ? Number(data.confidence).toFixed(4) : 'N/A';
+          labelRow.innerHTML = "Etiqueta: <span class='"+(label.startsWith('TF')?'label-tf':'label-notf')+"'>"+label+"</span>";
+          confRow.textContent = "Confianza: " + conf;
+          qualityRow.textContent = data.quality_score != null ? ("Quality score: " + Number(data.quality_score).toFixed(3)) : "";
+          cachedRow.textContent = data.cached ? "(resultado servido desde caché)" : "";
+          detailsRow.innerHTML = "";
+          if (data.validation_failed){
+            detailsRow.innerHTML += "<div class='small warning'>Secuencia inválida: " + (data.validation_details || "") + " — marcada como No-TF</div>";
+          }
+          if (data.low_quality){
+            detailsRow.innerHTML += "<div class='small warning'>Secuencia de baja calidad: " + (data.details || "") + "</div>";
+          }
+          if (data.fallback){
+            detailsRow.innerHTML += "<div class='small muted'>Se usó heurístico fallback.</div>";
+          }
+          resultCard.style.display = 'block';
+          window.scrollTo({ top: resultCard.offsetTop - 20, behavior: 'smooth' });
+        }catch(e){
+          btnQuick.disabled = false;
+          formMsg.style.display='block';
+          formMsg.textContent = 'Fallo de red o servidor.';
+          console.error(e);
+        }
+      }
 
       form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const seq = seqInput.value.trim();
-        if (!seq){ alert("Secuencia vacía"); return; }
-        try{
-          // show spinner
-          spin.style.display='inline-block';
-          const r = await fetch('/api/predict', {
-            method:'POST', credentials: 'same-origin',
-            headers:{'Content-Type':'application/json','Accept':'application/json'},
-            body: JSON.stringify({sequence: seq})
-          });
-          spin.style.display='none';
-          if(!r.ok){
-            let text = await r.text();
-            msgRow.style.display='block'; msgRow.textContent = 'Error en predicción: ' + (text || r.status);
-            openModal();
-            return;
-          }
-          const data = await r.json();
-          const label = data.label || (data.class === 1 ? 'TF' : 'No-TF');
-          const conf = data.confidence != null ? Number(data.confidence).toFixed(4) : 'N/A';
-          labelRow.textContent = "Etiqueta: " + label;
-          confRow.textContent  = "Confianza: " + conf;
-          cachedRow.textContent = data.cached ? "(de caché)" : "";
-          openModal();
-        }catch(err){
-          spin.style.display='none';
-          msgRow.style.display='block'; msgRow.textContent = 'Fallo de red o servidor.';
-          console.error(err);
-          openModal();
-        }
+        if (!seq){ formMsg.style.display='block'; formMsg.textContent='Secuencia vacía'; return; }
+        await doPredict(seq);
       });
+
+      btnQuick.addEventListener('click', async ()=> {
+        const seq = seqInput.value.trim();
+        if (!seq){ formMsg.style.display='block'; formMsg.textContent='Secuencia vacía'; return; }
+        await doPredict(seq);
+      });
+
+      // atajo: ctrl+enter para enviar
+      seqInput.addEventListener('keydown', (e)=>{ if(e.ctrlKey && e.key === 'Enter'){ e.preventDefault(); form.dispatchEvent(new Event('submit')); } });
     </script>
     </body></html>
     """)
@@ -1594,7 +1640,7 @@ def predict():
                             
                             # Determinar el tipo de salida del modelo
                             if output.dim() == 0:
-                                # Salida escalar (modelo binario con 1 neurona)
+                                # Salida escalar (modelo binario con  1 neurona)
                                 logit = float(output.item())
                                 prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
                             elif output.dim() == 1:
@@ -1713,14 +1759,31 @@ def predict():
     except Exception:
         logger.exception("Error en /predict (inesperado)")
         label, probs, confidence = fallback_predict(seq)
-        prediction_cache.set(key, {"label": label, "probs": probs, "confidence": confidence, "fallback": True})
-        stats["total"] += 1
-        stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": int(probs[1]>=0.5), "confidence": confidence, "fallback": True})
-        stats["history"] = stats["history"][:50]
+        # Asegurar que `key` siempre exista y cachear de forma segura
+        try:
+            key = _cache_key(seq)
+            # convertir probs a lista de forma segura
+            try:
+                probs_list = probs.tolist() if hasattr(probs, "tolist") else list(probs) if isinstance(probs, (list, tuple)) else [float(probs)]
+            except Exception:
+                probs_list = [float(probs)] if not isinstance(probs, (list, tuple)) else list(probs)
+            try:
+                prediction_cache.set(key, {"label": label, "probs": probs_list, "confidence": confidence, "fallback": True})
+            except Exception:
+                logger.exception("No se pudo guardar la predicción en caché (fallback)")
+        except Exception:
+            logger.exception("No se pudo generar clave de caché para la predicción fallback")
+        # Actualizar estadísticas de forma consistente
+        try:
+            stats["total"] += 1
+            stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": int((probs_list[1] if len(probs_list) > 1 else probs_list[0]) >= 0.5), "confidence": confidence, "fallback": True})
+            stats["history"] = stats["history"][:50]
+        except Exception:
+            logger.exception("No se pudo actualizar stats tras fallback")
         tpl_r = BASE_DIR / "templates" / "result.html"
         if tpl_r.exists():
-            return render_template("result.html", seq=seq, label=label, confidence=confidence, probs=probs, stats=stats, fallback=True)
-        return _render_result_inline(seq, label=label, confidence=confidence, probs=probs, fallback=True)
+            return render_template("result.html", seq=seq, label=label, confidence=confidence, probs=probs_list, stats=stats, fallback=True)
+        return _render_result_inline(seq, label=label, confidence=confidence, probs=probs_list, fallback=True)
 
 # Helper centralizado de encoding (evita duplicación en /predict y /api/predict)
 def encode_for_model(seq: str, max_length: int = 300):
@@ -1749,58 +1812,79 @@ def api_predict():
     global MODEL_BACKEND, model, MODEL_TEMPERATURE
     
     data = request.get_json(force=True)
-    seq = data.get("sequence", "")
+    seq = data.get("sequence", "") or ""
+    seq = seq.strip()
     if not seq:
-        return jsonify({"error": "sequence required"}), 400
+        return jsonify({"error":"sequence required"}), 400
 
-    # VALIDACIÓN ESTRICTA DE ENTRADA
+    # VALIDACIÓN ESTRICTA DE ENTRADA (pero NO abortar: clasificar como No-TF si falla)
     is_valid, error_msg = validate_protein_sequence(seq)
-    if not is_valid:
-        logger.warning(f"[PREDICT] ❌ Secuencia inválida: {error_msg}")
-        return jsonify({
-            "error": "Secuencia inválida",
-            "details": error_msg,
-            "label": "INVALID",
-            "class": -1,
-            "confidence": 0.0,
-            "validation_failed": True
-        }), 400
-
-    # Calcular score de calidad
     quality_score = calculate_sequence_quality_score(seq)
-    logger.info(f"[PREDICT] Quality score: {quality_score:.3f}")
-    
-    # Si la calidad es muy baja, rechazar directamente
-    if quality_score < 0.3:
-        logger.warning(f"[PREDICT] ⚠️ Secuencia de baja calidad (score: {quality_score:.3f})")
+    if not is_valid:
+        logger.warning(f"[PREDICT] ❌ Secuencia inválida: {error_msg} -> Clasificada como No-TF automáticamente")
+        # Decidir confianza conservadora para secuencia inválida: alta prob No-TF
+        confidence = 0.95
+        label = "No-TF"
+        pred_class = 0
+        # Guardar y cachear el resultado para consistencia
+        try:
+            key = _cache_key(seq)
+            prediction_cache.set(key, {"label": label, "probs": [1.0 - confidence, confidence], "confidence": confidence, "fallback": False})
+        except Exception:
+            pass
+        try:
+            save_prediction(session.get("username"), seq, label, confidence)
+            stats["total"] += 1
+            stats["no_tf"] += 1
+            stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": pred_class, "confidence": confidence})
+            stats["history"] = stats["history"][:50]
+        except Exception:
+            logger.exception("No se pudo registrar predicción para secuencia inválida")
         return jsonify({
-            "error": "Secuencia de baja calidad",
-            "details": f"La secuencia no parece una proteína real (quality score: {quality_score:.3f})",
-            "label": "No-TF",
-            "class": 0,
-            "confidence": 1.0 - quality_score,
+            "label": label,
+            "class": pred_class,
+            "confidence": confidence,
+            "probs": [1.0 - confidence, confidence],
             "quality_score": quality_score,
-            "low_quality": True
+            "validation_failed": True,
+            "validation_details": error_msg,
+            "cached": False,
+            "fallback": False,
+            "stats": stats
         }), 200
 
-    # NUEVO: caché API (después de validación)
-    try:
-        key = _cache_key(seq)
-        cached = prediction_cache.get(key)
-        if cached:
-            return jsonify({
-                "label": "TF" if cached["label"].startswith("Factor") or cached["label"]=="TF" else "No-TF",
-                "class": 1 if ("TF" in cached["label"] and "No-TF" not in cached["label"]) else 0,
-                "confidence": cached["confidence"],
-                "probs": cached["probs"],
-                "quality_score": quality_score,
-                "fallback": cached.get("fallback", False),
-                "cached": True,
-                "stats": stats
-            })
-    except Exception:
-        pass
+    # Si la calidad es muy baja, devolver No-TF (manteniendo compatibilidad)
+    if quality_score < 0.3:
+        logger.warning(f"[PREDICT] ⚠️ Secuencia de baja calidad (score: {quality_score:.3f}) -> Clasificada como No-TF")
+        confidence = max(0.7, 1.0 - quality_score)
+        label = "No-TF"
+        pred_class = 0
+        try:
+            key = _cache_key(seq)
+            prediction_cache.set(key, {"label": label, "probs": [1.0 - confidence, confidence], "confidence": confidence, "fallback": False})
+        except Exception:
+            pass
+        try:
+            save_prediction(session.get("username"), seq, label, confidence)
+            stats["total"] += 1
+            stats["no_tf"] += 1
+            stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": pred_class, "confidence": confidence})
+            stats["history"] = stats["history"][:50]
+        except Exception:
+            logger.exception("No se pudo registrar predicción para secuencia baja calidad")
+        return jsonify({
+            "label": label,
+            "class": pred_class,
+            "confidence": confidence,
+            "probs": [1.0 - confidence, confidence],
+            "quality_score": quality_score,
+            "low_quality": True,
+            "cached": False,
+            "fallback": False,
+            "stats": stats
+        }), 200
 
+    # Resto de la función sin cambios
     try:
         # Usar mismo encoding que train.py (centralizado)
         encoded_tensor = encode_for_model(seq, max_length=300)
