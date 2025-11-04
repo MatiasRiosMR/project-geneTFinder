@@ -1,0 +1,634 @@
+<!doctype html>
+<html lang="es">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+	<title>GeneTFinder — Predict</title>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Poppins:wght@400;700&family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="/static/style.css">
+	<style>
+		/* Tipografía y tamaño más profesional */
+		html, body { font-size: 16px; }
+		.brand { font-size: 1.9rem; letter-spacing: 0.8px; }
+		.lead { font-size: 1rem; color: #cfeffb; margin-top: 0.25rem; }
+
+		/* HERO / WELCOME */
+		.hero {
+			position: relative;
+			overflow: hidden;
+			background: linear-gradient(120deg, #181c24 0%, #232a36 100%);
+		}
+		.hero-inner {
+			animation: fadeInDown 1s cubic-bezier(.77,0,.175,1) both;
+			text-align: center;
+			padding: 1.4em 1em;
+			border-radius: 18px;
+			background: rgba(35,42,54,0.95);
+			box-shadow: 0 4px 32px #0003;
+			margin: 2em auto 1em auto;
+			max-width: 560px;
+			background: linear-gradient(180deg, rgba(40,48,60,0.62), rgba(22,26,32,0.64));
+			border: 1px solid rgba(255,255,255,0.03);
+		}
+		.blob {
+			animation: blobAnim 6s infinite alternate cubic-bezier(.77,0,.175,1);
+		}
+		@keyframes blobAnim {
+			0% { transform: scale(1) translateY(0);}
+			100% { transform: scale(1.2) translateY(10px);}
+		}
+
+		/* Layout y paneles */
+		.layout {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 2em;
+			justify-content: center;
+			align-items: flex-start;
+			max-width: 1200px;
+			margin: 0 auto;
+			width: 100%;
+			animation: fadeUpMain .7s cubic-bezier(.77,0,.175,1);
+		}
+		.sidebar {
+			flex: 1 1 320px;
+			max-width: 340px;
+			min-width: 220px;
+			background: rgba(35,42,54,0.97);
+			border-radius: 18px;
+			padding: 2em 1em 1em 1em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			box-shadow: 0 2px 16px #0002;
+			margin-bottom: 2em;
+			animation: fadeUpSidebar .7s cubic-bezier(.77,0,.175,1);
+			background: linear-gradient(180deg, rgba(22,26,30,0.55), rgba(18,22,26,0.5));
+		}
+		@keyframes fadeUpSidebar {
+			from { opacity: 0; transform: translateY(40px);}
+			to { opacity: 1; transform: translateY(0);}
+		}
+		.main-area {
+			flex: 2 1 400px;
+			min-width: 320px;
+			max-width: 600px;
+			background: rgba(35,42,54,0.97);
+			border-radius: 18px;
+			padding: 2em 1em 1em 1em;
+			box-shadow: 0 2px 16px #0002;
+			margin-bottom: 2em;
+			animation: fadeUpMain .7s cubic-bezier(.77,0,.175,1);
+			background: linear-gradient(180deg, rgba(22,26,30,0.55), rgba(18,22,26,0.5));
+		}
+		@keyframes fadeUpMain {
+			from { opacity: 0; transform: translateY(40px);}
+			to { opacity: 1; transform: translateY(0);}
+		}
+		.form-row, .hero-actions, .sidebar-actions {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 1em;
+		}
+		.btn, .btn-link, .btn.primary, .btn.secondary, .btn.ghost {
+			border-radius: 10px;
+			font-size: 1rem;
+			font-family: inherit;
+			font-weight: 700;
+			box-shadow: 0 2px 8px #0002;
+			padding: 0.65em 1.2em;
+			transition: background .2s, color .2s, box-shadow .2s, transform .2s;
+			border: none;
+			cursor: pointer;
+			letter-spacing: 0.5px;
+			background: #232a36;
+			color: #00c6ff;
+		}
+		.btn.primary {
+			background: linear-gradient(90deg,#007bff 0%,#00c6ff 100%);
+			color: #fff;
+			box-shadow: 0 4px 16px #007bff44;
+			transform-origin:center;
+		}
+		.btn.primary:hover, .btn.primary:focus {
+			background: linear-gradient(90deg,#0056b3 0%,#0096c7 100%);
+			transform: scale(1.05);
+			box-shadow: 0 8px 24px #007bff44;
+		}
+		.btn.secondary {
+			background: #232a36;
+			color: #00c6ff;
+			border: 1px solid #00c6ff;
+		}
+		.btn.secondary:hover, .btn.secondary:focus {
+			background: #00c6ff;
+			color: #232a36;
+			transform: scale(1.05);
+		}
+		.btn.ghost {
+			background: none;
+			color: #b0b8c1;
+			border: 1px solid #b0b8c1;
+		}
+		.btn.ghost:hover, .btn.ghost:focus {
+			background: #232a36;
+			color: #fff;
+			transform: scale(1.05);
+		}
+		.btn-link {
+			background: none;
+			border: none;
+			color: #00c6ff;
+			cursor: pointer;
+			text-decoration: underline;
+			font-size: 1em;
+		}
+		.btn-link:focus { outline: 2px solid #00c6ff; }
+		.input-group label, .label {
+			color: #00c6ff;
+			font-weight: 700;
+			margin-bottom: 0.3em;
+			display: block;
+			font-size: 1.1em;
+		}
+		textarea, input[type="text"], input[type="password"], input[type="email"] {
+			background: #232a36;
+			color: #f3f6fa;
+			border: 1.5px solid #00c6ff;
+			border-radius: 10px;
+			padding: 0.8em;
+			font-size: 1rem;
+			width: 100%;
+			box-sizing: border-box;
+			transition: border .2s;
+			margin-bottom: 1em;
+			font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+		}
+		textarea:focus, input:focus {
+			border-color: #007bff;
+			outline: none;
+		}
+		.stat, .stat.split {
+			width: 100%;
+			text-align: center;
+			margin-bottom: 1em;
+		}
+		.stat.split {
+			display: flex;
+			justify-content: center;
+			gap: 2em;
+		}
+		.stat-value {
+			font-size: 1.5em;
+			font-weight: bold;
+			margin-top: 0.2em;
+			letter-spacing: 1px;
+		}
+		#connectedCount {
+			font-size: 1.15em;
+			color: #00c6ff;
+			margin-bottom: 1em;
+			font-weight: 700;
+		}
+		.history-list {
+			max-height: 180px;
+			overflow-y: auto;
+			background: #232a36;
+			border-radius: 10px;
+			padding: 0.7em;
+			margin-bottom: 1em;
+			width: 100%;
+			box-shadow: 0 2px 8px #0001;
+		}
+		.history-list li {
+			font-size: 1em;
+			color: #b0b8c1;
+			border-bottom: 1px solid #232a36;
+			padding: 0.4em 0;
+			letter-spacing: 0.5px;
+		}
+		.history-list li:last-child { border-bottom: none; }
+		.form-row .btn, .form-row a.btn {
+			margin-bottom: 0.5em;
+		}
+		.result-panel {
+			animation: fadeUp .6s cubic-bezier(.77,0,.175,1) both;
+		}
+		@keyframes fadeUp {
+			from { opacity: 0; transform: translateY(40px);}
+			to { opacity: 1; transform: translateY(0);}
+		}
+		.ft-info {
+			max-width: 600px;
+			margin: 1.5em auto 1em auto;
+			background: #232a36;
+			padding: 1em;
+			border-radius: 12px;
+			box-shadow: 0 2px 8px #00c6ff22;
+			font-size: 1em;
+			transition: max-height .4s, padding .4s;
+			overflow: hidden;
+		}
+		@media (max-width: 900px) {
+			.layout {
+				flex-direction: column;
+				gap: 0;
+				max-width: 100vw;
+			}
+			.sidebar, .main-area {
+				max-width: 100vw;
+				width: 100%;
+				margin-bottom: 1em;
+			}
+			.ft-info { max-width: 98vw; }
+		}
+		@media (max-width: 700px) {
+			.hero-inner, .app-card, .info-card, .admin-page { padding: 1em; }
+			.sidebar, .main-area {
+				padding: 1em;
+				border-radius: 0;
+				box-shadow: none;
+			}
+			.form-row, .hero-actions, .sidebar-actions {
+				flex-direction: column;
+				gap: 1em;
+				align-items: stretch;
+			}
+			.history-list { max-height: 120px; }
+			.brand, h1, h2, h3, h4 { font-size: 1.5em; }
+			.stat-value { font-size: 1.2em; }
+			.ft-info { max-width: 98vw; padding: 0.7em; font-size: 0.95em; }
+		}
+		.global-footer {
+			background: #232a36;
+			color: #b0b8c1;
+			text-align: center;
+			padding: 1.2em 0 1em 0;
+			font-size: 1.1em;
+			border-top: 1px solid #232a36;
+			margin-top: 2em;
+			border-radius: 0 0 18px 18px;
+			box-shadow: 0 -2px 16px #0002;
+			letter-spacing: 0.5px;
+		}
+		.global-footer a { color: #00c6ff; text-decoration: underline; }
+
+		/* Info drawer: aparece desde el fondo al deslizar o pulsar */
+		#infoDrawer {
+			position: fixed;
+			left: 0;
+			right: 0;
+			bottom: -320px;
+			height: 320px;
+			background: rgba(25,27,30,0.96);
+			color: #dfeaf2;
+			border-top-left-radius: 12px;
+			border-top-right-radius: 12px;
+			box-shadow: 0 -8px 32px rgba(0,0,0,0.55);
+			transition: bottom 0.5s cubic-bezier(.2,.9,.2,1), transform 0.5s;
+			transform: translateY(20px);
+			padding: 1.2em;
+			overflow: auto;
+			z-index: 999;
+		}
+		#infoDrawer.open {
+			bottom: 0;
+			transform: translateY(0);
+		}
+		#infoDrawer .handle {
+			width: 48px;
+			height: 6px;
+			background: rgba(255,255,255,0.06);
+			border-radius: 4px;
+			margin: 0 auto 0.6em auto;
+		}
+		#infoDrawer h3 { color: #00c6ff; margin-top: 0; }
+		#showInfoFooterBtn {
+			position: fixed;
+			right: 1rem;
+			bottom: 1rem;
+			z-index: 1000;
+			background: rgba(35,42,54,0.9);
+			color: #00c6ff;
+			border: none;
+			padding: 0.7em 0.9em;
+			border-radius: 10px;
+			box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+			cursor: pointer;
+			transition: transform .18s ease;
+		}
+		#showInfoFooterBtn:hover { transform: translateY(-3px); }
+		/* reduce height on small screens */
+		@media (max-width:700px) {
+			#infoDrawer { height: 260px; }
+		}
+
+		/* Nuevo: Modal Novedades */
+		#newsModal {
+			position: fixed; inset: 0; display: flex; align-items:center; justify-content:center;
+			background: rgba(0,0,0,0.45); opacity:0; pointer-events:none; transition:opacity .25s;
+			z-index: 1200;
+		}
+		#newsModal.open { opacity: 1; pointer-events:auto; }
+		#newsCard {
+			width: min(760px, 92%); background: linear-gradient(180deg,#101216,#1b2128);
+			border-radius:12px; padding:1.2rem; color:#e6f6ff; transform: translateY(12px);
+			box-shadow: 0 18px 60px rgba(2,6,12,0.7); transition:transform .28s cubic-bezier(.2,.9,.2,1);
+		}
+		#newsModal.open #newsCard { transform: translateY(0); }
+		.news-title { color:#00c6ff; font-weight:800; margin:0 0 .4rem 0; }
+		.news-list { color:#bfd6de; margin:0.6rem 0 0 1.1rem; }
+		.news-close { position:absolute; right:1rem; top:1rem; background:none;border:0;color:#9fb0bf; font-weight:700; cursor:pointer;}
+		/* Accesibilidad: botones más grandes y foco visible */
+		.btn {
+			min-height: 48px;
+			padding: 0.85em 1.4em;
+		}
+		.btn:focus {
+			outline: 3px solid rgba(0,198,255,0.35);
+			outline-offset: 2px;
+		}
+		.copy-btn {
+			min-height: 44px;
+			padding: 0.5em 0.9em;
+			border-radius: 8px;
+			background: rgba(255,255,255,0.02);
+			border:1px solid rgba(255,255,255,0.03);
+			color:#cfeffb;
+		}
+		/* Mejor contraste para texto sin color */
+		.muted { color: #bfcbd6; }
+		/* Mejorar hit area del drawer button */
+		#showInfoFooterBtn, #showNewsBtn { min-height:48px; padding:0.7em 1rem; }
+
+		/* Toast styling */
+		.toast { position: fixed; right: 1rem; bottom: 1rem; background: rgba(2,6,12,0.9); color:#e6f6ff; padding:0.8em 1em; border-radius:10px; display:none; }
+		.toast.show { display:block; animation: toastIn .35s ease both; }
+		@keyframes toastIn { from { transform: translateY(8px); opacity:0 } to { transform: translateY(0); opacity:1 } }
+
+		/* Ajustes visuales adicionales */
+		.sidebar, .main-area { background: linear-gradient(180deg, rgba(22,26,30,0.55), rgba(18,22,26,0.5)); }
+		.btn.primary { box-shadow: 0 10px 30px rgba(0,123,255,0.12); transform-origin:center; }
+		.result-card { transition: transform .28s cubic-bezier(.2,.9,.2,1), box-shadow .28s; }
+		.result-card:hover { transform: translateY(-6px); box-shadow: 0 28px 80px rgba(0,0,0,0.6); }
+		/* Tipografía refinada */
+		.brand { font-weight:900; letter-spacing:1.2px; }
+	</style>
+</head>
+<body>
+	<!-- HERO / WELCOME -->
+	<div class="hero" id="hero" tabindex="-1">
+		<div class="hero-inner">
+			<h1 class="brand">GeneTFinder</h1>
+			<p class="lead">Detecta si una secuencia proteica es un Factor de Transcripción usando IA.</p>
+			<div class="hero-actions">
+				<a id="enterBtn" class="btn large primary" href="/login" aria-label="Ingresar al sistema">Ingresar</a>
+				<button id="infoBtn" class="btn ghost" type="button" aria-label="Mostrar información">Información</button>
+			</div>
+			<div class="hero-decor">
+				<span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span>
+			</div>
+		</div>
+		<div style="position:relative;margin-top:0.6rem;">
+			<span id="modelBadge" style="display:inline-block;padding:0.35em 0.6em;border-radius:10px;background:rgba(255,255,255,0.03);color:#9fb0bf;font-weight:700;font-size:0.95rem;backdrop-filter: blur(6px);">
+				Modelo: {% if model_info.backend %}{{ model_info.backend | upper }}{% else %}No cargado (En desarrollo){% endif %}
+			</span>
+		</div>
+	</div>
+	<!-- Info drawer: aparece desde el fondo al deslizar o pulsar -->
+	<button id="showInfoFooterBtn" aria-label="Mostrar información del proyecto" tabindex="0">Acerca del proyecto</button>
+
+	<section id="infoDrawer" aria-hidden="true" role="region" aria-label="Información del proyecto">
+		<div class="handle" aria-hidden="true"></div>
+		<div style="display:flex;gap:1em;align-items:flex-start;">
+			<div style="flex:1;">
+				<h3>Acerca de GeneTFinder</h3>
+				<p style="color:#bfcbd6;line-height:1.4;">
+					GeneTFinder es un proyecto de clasificación de factores de transcripción usando modelos conv1D entrenados localmente.
+					La interfaz permite probar secuencias, exportar resultados y revisar historial. El backend soporta modelos PyTorch (.pt) y Keras (.h5).
+				</p>
+				<ul style="color:#9fb0bf;">
+					<li>Arquitectura: Conv1D + BatchNorm + Atención (mejoras)</li>
+					<li>Entrenamiento: balance de clases, early stopping y calibración (temperature scaling)</li>
+					<li>Modelos soportados: DeeptFactor_ckpt.pt, GeneTFinder_model.pt, GeneTFinder_model.h5</li>
+				</ul>
+			</div>
+			<div style="width:220px;flex-shrink:0;color:#9fb0bf;font-size:0.95rem;">
+				<strong>Contacto</strong>
+				<p style="margin:0.2em 0;">Rios Matias · Ortega Alejo · Gaitan Agustin</p>
+				<p style="margin-top:0.8em;"><a href="mailto:contacto@genetfinder.com" style="color:#00c6ff;">contacto@genetfinder.com</a></p>
+			</div>
+		</div>
+	</section>
+
+	<!-- APP CARD (hidden hasta autostart) -->
+	<main class="app-card hidden" id="appCard" role="main" aria-live="polite">
+		<div class="layout">
+			<aside class="sidebar" id="sidebar">
+				<h3>Panel</h3>
+				{% if session.username %}
+				<div class="user-info">
+					<p class="muted">Usuario actual: <strong>{{ session.username }}</strong></p>
+					<p class="muted small">IP: {{ request.remote_addr }}</p>
+				</div>
+				{% endif %}
+				<div id="connectedCount" class="muted">Conectados: 0</div>
+				<div class="stat">
+					<p class="muted">Total predicciones</p>
+					<div id="totalCount" class="stat-value">0</div>
+				</div>
+				<div class="stat split">
+					<div>
+						<p class="muted">TF</p>
+						<div id="tfCount" class="stat-value">0</div>
+					</div>
+					<div>
+						<p class="muted">No-TF</p>
+						<div id="noTfCount" class="stat-value">0</div>
+					</div>
+				</div>
+				<div class="stat">
+					<p class="muted">Confianza promedio</p>
+					<div id="avgConfidence" class="stat-value">0%</div>
+				</div>
+				<button class="btn ghost" id="clearStatsBtn" style="margin-top:1em;">Borrar registros</button>
+				<button class="btn secondary" id="exportCsvBtn" style="margin-top:0.5em;">Exportar CSV</button>
+				<h4 class="muted">Últimas predicciones</h4>
+				<ul id="historyList" class="history-list" aria-live="polite"></ul>
+				<div class="sidebar-actions">
+					{% if session.get('role') == 'admin' %}
+					<a href="/admin" class="btn secondary">Panel Admin</a>
+					{% endif %}
+					<a href="/logout" class="btn ghost">Cerrar sesión</a>
+				</div>
+			</aside>
+			<section class="main-area">
+				<header class="app-header" style="text-align:center;">
+					<div>
+						<h2>Predictor TF</h2>
+						<p class="muted">Pega una secuencia proteica (AMINOÁCIDOS) y pulsa Predecir</p>
+					</div>
+					<div class="brand-small">GeneTFinder</div>
+				</header>
+				<form id="seqForm" class="form" novalidate autocomplete="off" method="POST" action="/predict" enctype="multipart/form-data" style="margin:0 auto;max-width:480px;">
+					<div class="input-group">
+						<label for="sequence" class="label">Secuencia o archivo FASTA</label>
+						<div class="sequence-input">
+							<textarea id="sequence" name="sequence" rows="6" placeholder="MKTAYIAKQRQISFVKSHFSRQDILDLWIY..." required aria-label="Secuencia de aminoácidos" tabindex="0"></textarea>
+							<button type="button" class="copy-btn" id="copySeqBtn" tabindex="0" aria-label="Copiar secuencia">Copiar</button>
+							<div id="dropZone" class="drop-zone" tabindex="0" aria-label="Arrastra archivo FASTA o selecciona">
+								<input type="file" id="fileInput" name="fasta_file" accept=".fasta,.fa" class="file-input" />
+								<div class="drop-content">
+									<span>Arrastra archivo FASTA o <button type="button" class="btn-link" id="selectFileBtn" tabindex="0">selecciona</button></span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-row">
+						<button type="submit" class="btn primary" id="predictBtn" tabindex="0">Predecir</button>
+						<button type="button" class="btn ghost" id="clearBtn" tabindex="0">Limpiar</button>
+						<button type="button" class="btn secondary" id="apiBtn" tabindex="0" title="Usar API">API</button>
+						<a href="/" class="btn ghost" id="volverBtn" tabindex="0">Volver</a>
+					</div>
+					<p class="hint" style="text-align:center;">API disponible: <code>/api/predict</code></p>
+				</form>
+				<!-- Resultado dinámico -->
+				<section id="resultPanel" class="result-panel hidden" aria-live="polite">
+					<!-- tarjeta limpia y centrada -->
+					<div class="result-card" role="status" aria-atomic="true" style="max-width:480px;margin:0.8em auto;padding:1em;border-radius:12px;background:linear-gradient(180deg,#1f242b, #262b33);box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+						<div style="display:flex;align-items:center;justify-content:space-between;gap:1em;">
+							<div style="flex:1;">
+								<div id="resultMain" style="font-size:1.45rem;font-weight:800;color:#ffd166;">Resultado</div>
+								<div id="resultTextLarge" style="font-size:1.9rem;font-weight:900;margin-top:0.25rem;color:#ff6b6b;">No-TF</div>
+								<div id="resultSub" style="margin-top:0.4rem;color:#bfcbd6;font-size:0.95rem;">Etiqueta simple + confianza</div>
+							</div>
+							<!-- indicador circular de confianza -->
+							<div style="width:96px;height:96px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.03);box-shadow:inset 0 -6px 12px rgba(0,0,0,0.6);">
+								<div id="resultPct" style="font-size:1.25rem;font-weight:800;color:#00c6ff;">0%</div>
+							</div>
+						</div>
+
+						<!-- barra de confianza -->
+						<div style="margin-top:1rem;">
+							<div style="height:10px;background:rgba(255,255,255,0.06);border-radius:999px;overflow:hidden;">
+								<div id="barFill" style="height:100%;width:0%;background:linear-gradient(90deg,#00c6ff,#007bff);transition:width .6s;"></div>
+							</div>
+							<div style="display:flex;justify-content:space-between;margin-top:0.5rem;font-size:0.9rem;color:#9fb0bf;">
+								<span id="lowLabel">Menor confianza</span>
+								<span id="highLabel">Mayor confianza</span>
+							</div>
+						</div>
+
+						<!-- acciones -->
+						<div style="display:flex;gap:0.6rem;justify-content:center;margin-top:1rem;">
+							<button id="copyResultBtn" class="btn ghost" type="button" tabindex="0" aria-label="Copiar resultado">Copiar</button>
+							<button id="downloadResultBtn" class="btn secondary" type="button" tabindex="0" aria-label="Descargar resultado">Descargar</button>
+							<button id="newPredBtn" class="btn primary" type="button" tabindex="0" aria-label="Nueva predicción">Nueva</button>
+						</div>
+					</div>
+				</section>
+				<footer class="app-footer" style="text-align:center;">
+					<span class="muted">Modelo local • Asegúrate de tener GeneTFinder_model.h5</span>
+				</footer>
+			</section>
+		</div>
+	</main>
+	<!-- Loader -->
+	<div id="loader" class="loader hidden" aria-hidden="true">
+		<div class="spinner"></div>
+		<p>Prediciendo…</p>
+	</div>
+	<div id="toast" class="toast"></div>
+	<!-- Footer global con autores y facultad -->
+	<footer class="global-footer">
+		<p class="small muted" style="margin-top:0.5em;">
+			© 2025 — Rios Matias · Ortega Alejo · Gaitan Agustin — Facultad de Ingeniería<br>
+			<a href="mailto:contacto@genetfinder.com" style="color:#00c6ff;text-decoration:underline;">Contacto</a> · 
+			<a href="/about" style="color:#00c6ff;text-decoration:underline;">Acerca de</a>
+		</p>
+	</footer>
+	<script src="/static/script.js"></script>
+	<script>
+/* Reemplazo seguro y compacto de listeners JS para evitar errores */
+(function(){
+    function $id(id){ return document.getElementById(id); }
+    function safeAddListener(id, evt, cb){ const el = $id(id); if(el) el.addEventListener(evt, cb); }
+
+    // manejo drawer info
+    safeAddListener('infoBtn','click', function(e){ e && e.preventDefault(); const d = $id('infoDrawer'); if(d) d.classList.toggle('open'); });
+    safeAddListener('showInfoFooterBtn','click', function(e){ const d = $id('infoDrawer'); if(d) d.classList.toggle('open'); });
+
+    // file select
+    safeAddListener('selectFileBtn','click', function(e){ e && e.preventDefault(); const fi = $id('fileInput'); if(fi) fi.click(); });
+    safeAddListener('fileInput','change', function(e){
+        const file = e && e.target && e.target.files && e.target.files[0];
+        if(file){
+            const reader = new FileReader();
+            reader.onload = function(evt){ const ta = $id('sequence'); if(ta) ta.value = evt.target.result; };
+            reader.readAsText(file);
+        }
+    });
+
+    // botones acción
+    safeAddListener('copySeqBtn','click', function(){ const s = ($id('sequence')||{}).value||''; if(s) navigator.clipboard.writeText(s).then(()=> showToast('Secuencia copiada','success')); else showToast('No hay secuencia','error'); });
+    safeAddListener('clearBtn','click', function(){ const s = $id('sequence'); if(s) s.value=''; });
+    safeAddListener('apiBtn','click', function(){ window.open('/api/predict','_blank'); });
+    safeAddListener('newPredBtn','click', function(){ const p = $id('resultPanel'); if(p) p.classList.add('hidden'); const s = $id('sequence'); if(s){ s.value=''; s.focus(); } });
+
+    // form submit: mostrar loader y permitir submit normal
+    const form = $id('seqForm');
+    if(form){
+        form.addEventListener('submit', function(){ const loader = $id('loader'); if(loader) loader.classList.remove('hidden'); });
+    }
+
+    // safe toast
+    window.showToast = function(msg, type='info'){ const toast = $id('toast'); if(!toast) return; toast.textContent = msg; toast.className = 'toast show ' + type; setTimeout(()=>{ if(toast) toast.className = 'toast'; }, 3500); };
+
+    // proteger actualizaciones periódicas
+    function updateStatsSafe(){
+        fetch('/stats_json').then(r=>r.json()).then(data=>{
+            try{
+                const setText = (id, txt)=>{ const el=$id(id); if(el) el.textContent = txt; };
+                setText('totalCount', data.total);
+                setText('tfCount', data.tf);
+                setText('noTfCount', data.no_tf);
+                setText('avgConfidence', (data.avg_confidence*100).toFixed(1) + '%');
+                setText('connectedCount', 'Conectados: ' + (data.connected_users||0));
+                const historyList = $id('historyList'); if(historyList){
+                    historyList.innerHTML = '';
+                    (data.history||[]).forEach(h=>{
+                        const li = document.createElement('li');
+                        const time = (h.time||'').split && h.time.split('T') ? `${h.time.split('T')[0]} ${ (h.time.split('T')[1]||'').slice(0,8) }` : (h.time||'');
+                        const cls = h.class==1 ? 'TF' : 'No-TF';
+                        const conf = typeof h.confidence !== 'undefined' ? ( (h.confidence*100).toFixed(1) + '%' ) : '-';
+                        li.innerHTML = `<span>${time}</span> — <span>${h.seq}</span> — <span>${cls}</span> — <span>${conf}</span>`;
+                        historyList.appendChild(li);
+                    });
+                }
+            }catch(e){ console.warn('updateStats error', e); }
+        }).catch(()=>{/* noop */});
+    }
+    setInterval(updateStatsSafe, 3000);
+    updateStatsSafe();
+
+    // desactivar predict si badge indica no cargado
+    (function(){
+        const badge = $id('modelBadge'); const predictBtn = $id('predictBtn');
+        if(badge && badge.textContent && badge.textContent.toLowerCase().includes('no cargado')){
+            if(predictBtn){ predictBtn.disabled = true; predictBtn.setAttribute('aria-disabled','true'); predictBtn.style.opacity='0.6'; predictBtn.title='Función en desarrollo: modelo no disponible'; }
+            const formEl = $id('seqForm');
+            if(formEl && !document.getElementById('modelNotice')){
+                const notice = document.createElement('div');
+                notice.id = 'modelNotice';
+                notice.style.marginTop='0.6em'; notice.style.color='#c9d9e2'; notice.style.textAlign='center'; notice.style.fontSize='0.95rem';
+                notice.textContent = 'Predicción: función en desarrollo (modelo no cargado).';
+                formEl.parentNode.insertBefore(notice, formEl.nextSibling);
+            }
+        }
+    })();
+})();
+</script>
+</body>
+</html>

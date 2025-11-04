@@ -1,0 +1,628 @@
+:root {
+  --primary: #00c6ff;
+  --primary-dark: #007bff;
+  --success: #7ce07c;
+  --warning: #ffd166;
+  --error: #ff6b6b;
+  --bg-dark: #181c24;
+  --bg-card: #232a36;
+  --text: #f3f6fa;
+  --text-muted: #bfcbd6;
+}
+
+/* Reset y base */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg-dark);
+    color: var(--text);
+    line-height: 1.5;
+}
+
+/* Home page */
+.home .hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: linear-gradient(135deg, var(--bg-dark), #1a2433);
+    padding: 2rem;
+}
+
+.hero-content {
+    max-width: 800px;
+}
+
+.hero h1 {
+    font-size: 4rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 1rem;
+}
+
+/* App layout */
+.app-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: 100vh;
+    background: var(--bg-dark);
+}
+
+.sidebar {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-right: 1px solid rgba(255,255,255,0.1);
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+.main-content {
+    padding: 2rem;
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* Components */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8em 1.6em;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-height: 48px;
+}
+
+.btn.primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+}
+
+.btn.secondary {
+    background: transparent;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+.btn.ghost {
+    background: transparent;
+    color: var(--text-muted);
+}
+
+/* Forms */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+textarea, input {
+    width: 100%;
+    padding: 1rem;
+    background: var(--bg-card);
+    border: 2px solid var(--primary);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+/* Results */
+.result-card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    animation: slideUp 0.3s ease;
+}
+
+.confidence-bar {
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 1rem 0;
+}
+
+.bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    transition: width 0.6s ease;
+}
+
+/* Animations */
+@keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate3d(0, 20px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .app-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: auto;
+        z-index: 1000;
+        transform: translateY(100%);
+        transition: transform 0.3s ease;
+        padding: 1rem;
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .sidebar.show {
+        transform: translateY(0);
+    }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        padding: 0.5rem;
+    }
+
+    .admin-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+
+    .header-stats {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .metric-card {
+        padding: 1rem;
+    }
+
+    .btn {
+        width: 100%;
+        min-height: 44px;
+        font-size: 0.95rem;
+    }
+
+    .result-card {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+
+    .sequence-input-container {
+        padding: 1rem;
+    }
+
+    textarea {
+        font-size: 0.9rem;
+    }
+
+    .footer-content {
+        padding: 1rem;
+    }
+}
+
+/* Ajustes para tablets */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .app-layout {
+        grid-template-columns: 250px 1fr;
+    }
+
+    .dashboard-grid {
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+}
+
+/* Ajustes adicionales para móviles pequeños */
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .metric-value {
+        font-size: 1.8rem;
+    }
+
+    .sequence-tools {
+        position: static;
+        margin-top: 0.5rem;
+        justify-content: center;
+    }
+
+    .footer-links {
+        flex-direction: column;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .admin-access-btn {
+        right: 1rem;
+        bottom: 1rem;
+        padding: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+}
+
+/* Mejoras de usabilidad táctil */
+@media (hover: none) and (pointer: coarse) {
+    .btn, 
+    .tool-btn,
+    .sequence-tools button,
+    .nav-links a {
+        padding: 12px 16px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+
+    .sidebar-actions {
+        margin-bottom: 20px;
+    }
+
+    input, 
+    textarea,
+    select {
+        font-size: 16px !important; /* Previene zoom en iOS */
+    }
+
+    .confidence-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 1.2rem;
+    }
+}
+
+/* Mejoras de legibilidad */
+@media (max-width: 768px) {
+    body {
+        font-size: 15px;
+    }
+
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.3rem; }
+
+    .stat-value {
+        font-size: 1.8rem;
+    }
+
+    .header-stats {
+        font-size: 0.9rem;
+    }
+}
+
+/* Optimizaciones de rendimiento móvil */
+@media (max-width: 768px) {
+    .sidebar,
+    .main-content,
+    .dashboard-card {
+        backface-visibility: hidden;
+        -webkit-backface-visibility: hidden;
+        transform: translateZ(0);
+        -webkit-transform: translateZ(0);
+    }
+
+    .animation-heavy {
+        animation: none;
+    }
+}
+
+/* Mejoras de rendimiento */
+* {
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Layout optimizado */
+.app-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    min-height: 100vh;
+    background: var(--bg-dark);
+}
+
+/* Optimizaciones de rendimiento */
+.sidebar, .main-content {
+    will-change: transform;
+    backface-visibility: hidden;
+}
+
+/* Animaciones optimizadas */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translate3d(0, 20px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Nuevos componentes */
+.feature-card {
+    background: linear-gradient(135deg, rgba(35,42,54,0.8), rgba(25,30,40,0.8));
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.feature-card:hover {
+    transform: translateY(-8px);
+}
+
+/* Footer mejorado */
+.app-footer {
+    background: rgba(35,42,54,0.95);
+    padding: 1.5rem 0;
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.footer-logo {
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: var(--primary);
+    letter-spacing: 1px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.footer-links a:hover {
+    color: var(--primary);
+}
+
+.footer-copyright {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+/* Panel de predicción mejorado */
+.sequence-input-container {
+    background: rgba(35,42,54,0.5);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+}
+
+.textarea-wrapper {
+    position: relative;
+}
+
+.sequence-tools {
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+.tool-btn {
+    background: rgba(255,255,255,0.05);
+    border: none;
+    color: var(--text-muted);
+    padding: 0.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tool-btn:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--primary);
+}
+
+.results-panel {
+    animation: slideUp 0.3s ease;
+}
+
+.result-card {
+    background: linear-gradient(135deg, rgba(35,42,54,0.95), rgba(25,30,40,0.95));
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+}
+
+.confidence-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    background: rgba(0,198,255,0.1);
+}
+
+.probability-bars {
+    margin: 1.5rem 0;
+}
+
+.prob-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+}
+
+.prob-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.prob-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--primary-dark));
+    transition: width 0.6s ease;
+}
+
+/* Admin Dashboard mejorado */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.stat-card {
+    background: linear-gradient(135deg, rgba(35,42,54,0.95), rgba(25,30,40,0.95));
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.3s;
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 1rem 0;
+}
+
+/* Admin Panel Button */
+.admin-access-btn {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    transition: all 0.3s;
+    z-index: 100;
+}
+
+.admin-access-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.4);
+}
+
+.admin-access-btn .icon {
+    font-size: 1.2rem;
+}
+
+/* Admin Dashboard Components */
+.admin-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    padding: 1.5rem;
+}
+
+.dashboard-card {
+    background: linear-gradient(135deg, rgba(35,42,54,0.95), rgba(25,30,40,0.95));
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.metric-card {
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+    margin: 0.5rem 0;
+}
+
+/* Estilos adicionales para el panel admin */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    background: var(--bg-card);
+    border-radius: 12px;
+    margin-bottom: 1rem;
+}
+
+.header-stats {
+    display: flex;
+    gap: 1rem;
+}
+
+.stat {
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+
+.activity-panel {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 1rem;
+}
+
+.activity-stream {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 1rem;
+}
+
+.activity-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.status-badge {
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+}
+
+.status-badge.active {
+    background: rgba(124,224,124,0.2);
+    color: #7ce07c;
+}

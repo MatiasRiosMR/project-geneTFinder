@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Panel de Control - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .admin-card {
+            background: linear-gradient(135deg, rgba(35,42,54,0.95), rgba(25,30,40,0.95));
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        .user-list {
+            margin-top: 1rem;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            align-items: center;
+        }
+
+        .user-status {
+            padding: 0.3rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        .status-online {
+            background: rgba(124,224,124,0.2);
+            color: #7ce07c;
+        }
+
+        .status-offline {
+            background: rgba(255,107,107,0.2);
+            color: #ff6b6b;
+        }
+
+        .device-info {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .metric-large {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-align: center;
+            margin: 1rem 0;
+        }
+    </style>
+</head>
+<body>
+    <main class="admin-page">
+        <header class="admin-header">
+            <h1>Panel de Control</h1>
+            <nav>
+                <a href="/admin/stats" class="btn ghost">Estadísticas</a>
+                <button id="reloadModelBtn" class="btn primary">Recargar Modelo</button>
+                <a href="/" class="btn secondary">Volver</a>
+            </nav>
+        </header>
+
+        <div class="admin-grid">
+            <!-- Usuarios Activos -->
+            <div class="admin-card">
+                <h3>Usuarios Conectados</h3>
+                <div class="metric-large" id="activeUsersCount">0</div>
+                <div class="user-list" id="activeUsersList">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+
+            <!-- Estado del Sistema -->
+            <div class="admin-card">
+                <h3>Estado del Sistema</h3>
+                <div class="system-info">
+                    <div class="stat-row">
+                        <span>Modelo:</span>
+                        <strong id="modelStatus">{{ model_info.backend|upper if model_info.backend else "No cargado" }}</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Precisión:</span>
+                        <strong id="modelAccuracy">-</strong>
+                    </div>
+                    <div class="stat-row">
+                        <span>Memoria:</span>
+                        <strong id="memoryUsage">-</strong>
+                    </div>
+                </div>
+                <div class="actions" style="margin-top:1rem;">
+                    <button id="clearStatsBtn" class="btn ghost">Limpiar Estadísticas</button>
+                    <button id="exportDataBtn" class="btn secondary">Exportar Datos</button>
+                </div>
+            </div>
+
+            <!-- Actividad Reciente -->
+            <div class="admin-card">
+                <h3>Actividad Reciente</h3>
+                <div id="activityStream" class="activity-stream">
+                    <!-- Se llena dinámicamente -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        function updateAdminPanel() {
+            fetch('/admin/system_stats')
+                .then(res => res.json())
+                .then(data => {
+                    // Actualizar usuarios activos
+                    const activeList = document.getElementById('activeUsersList');
+                    activeList.innerHTML = '';
+                    
+                    Object.entries(data.users).forEach(([username, user]) => {
+                        if (user.connected) {
+                            const div = document.createElement('div');
+                            div.className = 'user-item';
+                            div.innerHTML = `
+                                <div>
+                                    <strong>${username}</strong>
+                                    <div class="device-info">${user.device || 'Dispositivo desconocido'}</div>
+                                </div>
+                                <span class="user-status status-online">Online</span>
+                            `;
+                            activeList.appendChild(div);
+                        }
+                    });
+
+                    // Actualizar contadores
+                    document.getElementById('activeUsersCount').textContent = data.active_users;
+                    document.getElementById('modelAccuracy').textContent = 
+                        (data.model_accuracy * 100).toFixed(1) + '%';
+                    document.getElementById('memoryUsage').textContent = data.memory_usage;
+
+                    // Actualizar actividad
+                    const activityStream = document.getElementById('activityStream');
+                    activityStream.innerHTML = data.recent_activity
+                        .map(activity => `
+                            <div class="activity-item">
+                                <span>${new Date(activity.time).toLocaleString()}</span>
+                                <span>${activity.description}</span>
+                            </div>
+                        `).join('');
+                });
+        }
+
+        // Actualizar cada 3 segundos
+        setInterval(updateAdminPanel, 3000);
+        updateAdminPanel();
+
+        // Handlers para botones
+        document.getElementById('reloadModelBtn').addEventListener('click', function() {
+            if (!confirm('¿Recargar modelo? Esto puede tomar unos segundos.')) return;
+            
+            fetch('/reload_model', { method: 'POST' })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.ok) {
+                        alert('Modelo recargado exitosamente');
+                        location.reload();
+                    } else {
+                        alert('Error al recargar el modelo: ' + data.error);
+                    }
+                });
+        });
+
+        document.getElementById('clearStatsBtn').addEventListener('click', function() {
+            if (!confirm('¿Borrar todas las estadísticas? Esta acción no se puede deshacer.')) return;
+            
+            fetch('/clear_stats', { method: 'POST' })
+                .then(res => res.json())
+                .then(() => {
+                    alert('Estadísticas borradas');
+                    updateAdminPanel();
+                });
+        });
+
+        document.getElementById('exportDataBtn').addEventListener('click', function() {
+            window.location.href = '/admin/export_data';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predictor - GeneTFinder</title>
+    <link rel="icon" href="/logo.png" type="image/png"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #3b82f6;
+            --secondary: #8b5cf6;
+            --tertiary: #06b6d4;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg-dark: #0a0e1a;
+            --bg-secondary: #0f172a;
+            --bg-card: rgba(15, 23, 42, 0.8);
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(148, 163, 184, 0.1);
+            --glow: rgba(59, 130, 246, 0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #0d1321 100%);
+            color: var(--text);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        /* DNA Background Animation */
+        .dna-background {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .helix-strand {
+            position: absolute;
+            width: 2px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--primary), var(--secondary), var(--tertiary));
+            animation: helixRotate 20s linear infinite;
+        }
+        
+        .helix-strand:nth-child(1) { left: 25%; animation-delay: 0s; }
+        .helix-strand:nth-child(2) { left: 50%; animation-delay: -10s; }
+        .helix-strand:nth-child(3) { left: 75%; animation-delay: -5s; }
+        
+        @keyframes helixRotate {
+            from { transform: rotateZ(0deg); }
+            to { transform: rotateZ(360deg); }
+        }
+        
+        /* Floating Molecules */
+        .molecules {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        .molecule {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--tertiary);
+            border-radius: 50%;
+            opacity: 0.4;
+            animation: moleculeFloat 20s infinite;
+        }
+        
+        @keyframes moleculeFloat {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
+            10% { opacity: 0.4; }
+            90% { opacity: 0.4; }
+            100% { transform: translateY(-100vh) translateX(100px); opacity: 0; }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Header */
+        .header {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 24px 32px;
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header h1::before {
+            content: '🧬';
+            font-size: 32px;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 12px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px var(--glow);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px var(--glow);
+        }
+        
+        .btn-ghost {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-ghost:hover {
+            background: rgba(59, 130, 246, 0.2);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 24px;
+            animation: fadeIn 0.8s ease 0.2s both;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Input Panel */
+        .input-panel {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .input-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--tertiary));
+        }
+        
+        .panel-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--text);
+        }
+        
+        .form-group {
+            margin-bottom: 24px;
+        }
+        
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+        
+        .sequence-input {
+            width: 100%;
+            min-height: 300px;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            resize: vertical;
+            transition: all 0.3s;
+        }
+        
+        .sequence-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+            background: rgba(0, 0, 0, 0.4);
+        }
+        
+        .sequence-input::placeholder {
+            color: var(--text-muted);
+        }
+        
+        .input-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .file-upload {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+        
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+        
+        .file-upload input {
+            display: none;
+        }
+        
+        .upload-icon {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+        
+        /* Stats Panel */
+        .stats-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .stat-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+        
+        .stat-header {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .model-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            margin-top: 12px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        /* Result Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-title {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .close-btn:hover {
+            color: var(--text);
+            transform: rotate(90deg);
+        }
+        
+        .result-content {
+            padding: 24px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+        
+        .result-label {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .result-tf {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.1));
+            border: 2px solid rgba(16, 185, 129, 0.5);
+            color: var(--success);
+        }
+        
+        .result-no-tf {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(220, 38, 38, 0.1));
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            color: var(--error);
+        }
+        
+        .confidence-bar {
+            margin: 20px 0;
+        }
+        
+        .confidence-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 6px;
+            transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 20px var(--glow);
+        }
+        
+        .probabilities {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 20px;
+        }
+        
+        .prob-item {
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .prob-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        
+        .prob-value {
+            font-size: 20px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        /* Loading */
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10, 14, 26, 0.9);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .loading-overlay.active {
+            display: flex;
+        }
+        
+        .spinner-container {
+            text-align: center;
+        }
+        
+        .spinner {
+            width: 80px;
+            height: 80px;
+            border: 6px solid rgba(59, 130, 246, 0.2);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 16px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-panel {
+                grid-template-columns: repeat(2, 1fr);
+                display: grid;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            
+            .stats-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- DNA Background -->
+    <div class="dna-background">
+        <div class="helix-strand"></div>
+        <div class="helix-strand"></div>
+        <div class="helix-strand"></div>
+    </div>
+    
+    <!-- Molecules -->
+    <div class="molecules" id="molecules"></div>
+    
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <div class="loading-text">Analizando secuencia...</div>
+        </div>
+    </div>
+    
+    <!-- Result Modal -->
+    <div class="modal" id="resultModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Resultado de Predicción</h2>
+                <button class="close-btn" onclick="closeModal()">×</button>
+            </div>
+            
+            <div class="result-content">
+                <div class="result-label" id="resultLabel"></div>
+                
+                <div class="confidence-bar">
+                    <div class="confidence-label">
+                        <span>Confianza</span>
+                        <span id="confidenceValue">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="probabilities">
+                    <div class="prob-item">
+                        <div class="prob-label">No-TF</div>
+                        <div class="prob-value" id="probNoTF">0.00</div>
+                    </div>
+                    <div class="prob-item">
+                        <div class="prob-label">TF</div>
+                        <div class="prob-value" id="probTF">0.00</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="newPrediction()" style="flex: 1;">
+                    Nueva Predicción
+                </button>
+                <button class="btn btn-ghost" onclick="closeModal()" style="flex: 1;">
+                    Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Reporte de Error -->
+    <div class="modal" id="reportModal">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2 class="modal-title">⚠️ Reportar Error</h2>
+                <button class="close-btn" onclick="closeReportModal()">×</button>
+            </div>
+            
+            <div class="result-content" style="text-align: center; padding: 40px 20px;">
+                <div style="font-size: 64px; margin-bottom: 20px;">🚧</div>
+                <h3 style="color: var(--warning); margin-bottom: 16px;">Función en Desarrollo</h3>
+                <p style="color: var(--text-secondary); line-height: 1.6; margin-bottom: 24px;">
+                    Esta funcionalidad está actualmente en desarrollo.<br>
+                    Por favor, comuníquese con el servicio técnico para reportar cualquier problema.
+                </p>
+                <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+                    <p style="font-size: 14px; color: var(--text-secondary);">
+                        <strong>Contacto Técnico:</strong><br>
+                        📧 soporte@genetfinder.com<br>
+                        📞 +54 9 11 1234-5678
+                    </p>
+                </div>
+            </div>
+            
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeReportModal()" style="width: 100%;">
+                    Entendido
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Predictor de Factores de Transcripción</h1>
+            <div class="nav-links">
+                <button class="btn btn-ghost" onclick="reportError()">
+                    ⚠️ Reportar Error
+                </button>
+                <a href="/admin" class="btn btn-ghost">👤 Admin</a>
+                <a href="/logout" class="btn btn-ghost">← Cerrar Sesión</a>
+            </div>
+        </div>
+        
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Input Panel -->
+            <div class="input-panel">
+                <h2 class="panel-title">Entrada de Secuencia</h2>
+                
+                <form id="predictForm">
+                    <div class="form-group">
+                        <label class="form-label">Secuencia de Proteína</label>
+                        <textarea 
+                            class="sequence-input" 
+                            id="sequenceInput"
+                            placeholder="Pega tu secuencia de aminoácidos aquí (ej: MKTAYIAKQRQISFVKSH...)&#10;&#10;Formatos soportados:&#10;• Secuencia plana (solo aminoácidos)&#10;• FASTA (iniciando con >)"
+                        ></textarea>
+                        <div class="input-meta">
+                            <span id="charCount">0 aminoácidos</span>
+                            <span id="validAA">Válido: No</span>
+                        </div>
+                    </div>
+                    
+                    <div class="file-upload" onclick="document.getElementById('fastaFile').click()">
+                        <div class="upload-icon">📁</div>
+                        <div>Cargar archivo FASTA</div>
+                        <input type="file" id="fastaFile" accept=".fasta,.fa,.txt">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        🔬 Analizar Secuencia
+                    </button>
+                </form>
+            </div>
+            
+            <!-- Stats Panel -->
+            <div class="stats-panel">
+                <div class="stat-card">
+                    <div class="stat-header">Estado del Modelo</div>
+                    <div class="model-status">
+                        <div class="status-dot"></div>
+                        <span>{{ model_info.backend|upper if model_info.backend else 'No cargado' }}</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">Predicciones Totales</div>
+                    <div class="stat-value" id="totalPredictions">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">Factores TF</div>
+                    <div class="stat-value" id="tfCount">0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-header">No-TF</div>
+                    <div class="stat-value" id="noTfCount">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Create molecules
+        function createMolecules() {
+            const container = document.getElementById('molecules');
+            for (let i = 0; i < 30; i++) {
+                const mol = document.createElement('div');
+                mol.className = 'molecule';
+                mol.style.left = Math.random() * 100 + '%';
+                mol.style.animationDelay = Math.random() * 20 + 's';
+                mol.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(mol);
+            }
+        }
+        createMolecules();
+        
+        const form = document.getElementById('predictForm');
+        const seqInput = document.getElementById('sequenceInput');
+        const fileInput = document.getElementById('fastaFile');
+        const charCount = document.getElementById('charCount');
+        const validAA = document.getElementById('validAA');
+        
+        // Sequence validation
+        const validAminoAcids = /^[ACDEFGHIKLMNPQRSTVWY\s\n\r>]+$/i;
+        
+        seqInput.addEventListener('input', function() {
+            let seq = this.value.toUpperCase().replace(/[\s\n\r>]/g, '');
+            charCount.textContent = `${seq.length} aminoácidos`;
+            
+            if (seq.length > 0) {
+                const isValid = validAminoAcids.test(this.value);
+                validAA.textContent = `Válido: ${isValid ? 'Sí ✓' : 'No ✗'}`;
+                validAA.style.color = isValid ? 'var(--success)' : 'var(--error)';
+            } else {
+                validAA.textContent = 'Válido: No';
+                validAA.style.color = 'var(--text-muted)';
+            }
+        });
+        
+        // File upload
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    seqInput.value = event.target.result;
+                    seqInput.dispatchEvent(new Event('input'));
+                };
+                reader.readAsText(file);
+            }
+        });
+        
+        // Form submission
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            let seq = seqInput.value.trim();
+            if (!seq) {
+                alert('Por favor ingresa una secuencia');
+                return;
+            }
+            
+            // Clean sequence
+            if (seq.startsWith('>')) {
+                seq = seq.split('\n').filter(line => !line.startsWith('>')).join('');
+            }
+            seq = seq.replace(/\s/g, '');
+            
+            document.getElementById('loadingOverlay').classList.add('active');
+            
+            try {
+                const response = await fetch('/api/predict', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ sequence: seq })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showResult(data);
+                    updateStats(data.stats);
+                } else {
+                    alert('Error: ' + (data.error || 'Error desconocido'));
+                }
+            } catch (error) {
+                alert('Error de conexión: ' + error.message);
+            } finally {
+                document.getElementById('loadingOverlay').classList.remove('active');
+            }
+        });
+        
+        function showResult(data) {
+            const modal = document.getElementById('resultModal');
+            const label = document.getElementById('resultLabel');
+            const confidence = document.getElementById('confidenceValue');
+            const progressFill = document.getElementById('progressFill');
+            const probNoTF = document.getElementById('probNoTF');
+            const probTF = document.getElementById('probTF');
+            
+            const isTF = data.class === 1 || data.label === 'TF';
+            const conf = (data.confidence * 100).toFixed(1);
+            
+            label.textContent = isTF ? '✓ Factor de Transcripción (TF)' : '✗ No es Factor de Transcripción';
+            label.className = 'result-label ' + (isTF ? 'result-tf' : 'result-no-tf');
+            
+            confidence.textContent = `${conf}%`;
+            progressFill.style.width = `${conf}%`;
+            
+            if (data.probs && data.probs.length >= 2) {
+                probNoTF.textContent = data.probs[0].toFixed(4);
+                probTF.textContent = data.probs[1].toFixed(4);
+            }
+            
+            modal.classList.add('show');
+        }
+        
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('show');
+        }
+        
+        function newPrediction() {
+            closeModal();
+            seqInput.value = '';
+            seqInput.dispatchEvent(new Event('input'));
+            seqInput.focus();
+        }
+        
+        function updateStats(stats) {
+            if (stats) {
+                document.getElementById('totalPredictions').textContent = stats.total || 0;
+                document.getElementById('tfCount').textContent = stats.tf || 0;
+                document.getElementById('noTfCount').textContent = stats.no_tf || 0;
+            }
+        }
+        
+        // Load initial stats
+        fetch('/stats_json')
+            .then(r => r.json())
+            .then(updateStats)
+            .catch(() => {});
+        
+        // Auto-focus
+        seqInput.focus();
+        
+        function reportError() {
+            document.getElementById('reportModal').classList.add('show');
+        }
+        
+        function closeReportModal() {
+            document.getElementById('reportModal').classList.remove('show');
+        }
+        
+        // Cerrar modal al hacer clic fuera
+        window.addEventListener('click', function(e) {
+            const reportModal = document.getElementById('reportModal');
+            if (e.target === reportModal) {
+                closeReportModal();
+            }
+        });
+    </script>
+</body>
+</html>

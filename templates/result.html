@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultado - GeneTFinder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        body { background: linear-gradient(120deg,#181c24,#232a36); color:#f3f6fa; font-family:'Poppins', 'Inter', Arial, sans-serif; margin:0; padding:2em; display:flex; align-items:center; justify-content:center; min-height:100vh; }
+        .card { background:rgba(35,42,54,0.98); padding:2em; border-radius:14px; max-width:640px; width:100%; box-shadow:0 8px 32px rgba(0,0,0,0.6); }
+        .title { font-size:1.6rem; letter-spacing:0.6px; color:#00c6ff; margin-bottom:0.6rem; }
+        .big { font-size:2.2rem; margin:0.4rem 0; }
+        .pct { font-size:1.25rem; color:#7ce07c; }
+        .bar { height:14px; border-radius:999px; overflow:hidden; margin-top:1rem; }
+        .bar > div { transition: width .8s cubic-bezier(.2,.9,.2,1); background: linear-gradient(90deg,#7ce07c,#00c6ff); }
+        .actions { margin-top:1.2rem; display:flex; gap:0.6rem; justify-content:center; }
+        .btn { padding:0.8em 1.2em; border-radius:10px; border:none; cursor:pointer; font-weight:700; }
+        .btn.primary { background:linear-gradient(90deg,#007bff,#00c6ff); color:#fff; }
+        .btn.primary { padding:0.9em 1.4em; border-radius:10px; }
+    </style>
+</head>
+<body>
+    <div class="card" role="main" aria-live="polite">
+        {% if error %}
+            <div class="title">Error</div>
+            <div class="big" style="color:#ff6b6b;">{{ error }}</div>
+            <div class="actions"><a href="/" class="btn primary">Volver</a></div>
+        {% else %}
+            {% if fallback %}
+                <div style="background:rgba(255,165,0,0.06);color:#ffd27a;padding:0.45em 0.8em;border-radius:8px;font-weight:700;margin-bottom:0.6rem;">
+                    Predicción provisional (fallback): el modelo no está disponible en este momento.
+                </div>
+            {% endif %}
+            <div class="title">Resultado de predicción</div>
+            <div class="big">{{ label }}</div>
+            <div class="pct">Confianza: {{ "%.2f"|format(confidence * 100) }}%</div>
+            <div class="bar"><div style="width: {{ "%.1f"|format(confidence * 100) }}%"></div></div>
+            <div style="margin-top:0.8rem;color:#9fb0bf;font-size:0.95rem;">Secuencia (recortada): <code>{{ seq[:80] }}{% if seq|length > 80 %}...{% endif %}</code></div>
+            <div class="actions">
+                <!-- Nuevo botón: volver atrás en el historial del navegador -->
+                <button id="backBtn" class="btn primary" type="button" aria-label="Volver atrás">Volver atrás</button>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Nuevo script: manejar Volver atrás con fallback -->
+    <script>
+      (function(){
+        var backBtn = document.getElementById('backBtn');
+        if (!backBtn) return;
+        backBtn.addEventListener('click', function(e){
+          e.preventDefault();
+          try {
+            // Intentar volver en el historial
+            if (window.history && window.history.length > 1) {
+              window.history.back();
+            } else {
+              // Fallback: volver al dashboard de predicción
+              window.location.href = '/predictor';
+            }
+          } catch(err) {
+            // En caso de error, redirigir al dashboard
+            window.location.href = '/predictor';
+          }
+        });
+      })();
+    </script>
+</body>
+</html>

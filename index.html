@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GeneTFinder | Inicio</title>
+  <meta name="description" content="GeneTFinder: Dashboard y análisis en tiempo real para descubrir factores de transcripción." />
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body class="snap">
+  <header class="nav">
+    <a class="brand" href="#inicio">
+      <img src="assets/logo.svg" alt="GeneTFinder" />
+      <span>GeneTFinder</span>
+    </a>
+    <nav>
+      <a href="#inicio" data-link>Inicio</a>
+      <a href="#proyecto" data-link>Proyecto</a>
+      <a href="#caracteristicas" data-link>Características</a>
+      <a href="dashboard.html">Dashboard</a>
+    </nav>
+    <button id="themeToggle" aria-label="Cambiar tema">🌓</button>
+  </header>
+
+  <main>
+    <section id="inicio" class="hero snap-child">
+      <div class="bg-gradient"></div>
+      <div class="hero-content reveal">
+        <h1>Explorá factores de transcripción con claridad</h1>
+        <p>Insights en tiempo real, métricas clave y una experiencia moderna para tu flujo bioinformático.</p>
+        <div class="cta">
+          <a class="btn primary" href="dashboard.html">Ir al Dashboard</a>
+          <a class="btn ghost" href="#proyecto">Saber más</a>
+        </div>
+        <div class="live-peek card">
+          <h3>Vista previa en vivo</h3>
+          <div class="peek-grid">
+            <div>
+              <div class="kpi" id="kpi-queries">--</div>
+              <span>Consultas/min</span>
+            </div>
+            <div>
+              <div class="kpi" id="kpi-tfs">--</div>
+              <span>TFs detectados</span>
+            </div>
+            <div>
+              <div class="kpi" id="kpi-acc">--%</div>
+              <span>Precisión</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="scroll-indicator" href="#proyecto" aria-label="Deslizar">▼</a>
+    </section>
+
+    <section id="proyecto" class="section snap-child">
+      <div class="container reveal">
+        <h2>Sobre el proyecto</h2>
+        <p>
+          GeneTFinder es una herramienta para descubrir y priorizar factores de transcripción
+          a partir de datos ómicos. Ofrece un pipeline reproducible, visualizaciones claras,
+          y un dashboard con métricas operativas y científicas en tiempo real.
+        </p>
+        <ul class="bullets">
+          <li>Integración de múltiples fuentes (motifs, ChIP, expresión).</li>
+          <li>Scoring transparente y trazable.</li>
+          <li>Exportación de resultados y endpoints para automatización.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="caracteristicas" class="section snap-child alt">
+      <div class="container reveal grid-3">
+        <div class="feature card">
+          <h3>Tiempo real</h3>
+          <p>Actualización continua vía WebSocket/SSE o simulación local sin backend.</p>
+        </div>
+        <div class="feature card">
+          <h3>UX moderna</h3>
+          <p>Animaciones sutiles, scroll-snap y diseño responsivo.</p>
+        </div>
+        <div class="feature card">
+          <h3>Escalable</h3>
+          <p>Arquitectura preparada para crecer y exponer APIs.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>© <span id="year"></span> GeneTFinder</span>
+    <a href="dashboard.html">Dashboard</a>
+  </footer>
+
+  <script>window.__API_BASE__ = null; /* Reemplazar por tu URL si ya tenés backend */</script>
+  <script src="scripts/realtime.js" type="module"></script>
+  <script src="scripts/app.js" type="module"></script>
+</body>
+</html>

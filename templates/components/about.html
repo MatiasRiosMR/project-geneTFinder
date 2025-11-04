@@ -1,0 +1,75 @@
+<div class="about-section card animate-in">
+    <h2 class="section-title">Acerca de GeneTFinder</h2>
+    
+    <div class="content">
+        <p class="lead">
+            GeneTFinder es un proyecto de clasificación de factores de transcripción usando redes neuronales convolucionales (CNN) entrenadas localmente.
+        </p>
+
+        <h3>Características principales</h3>
+        <ul class="feature-list">
+            <li>Predicción de TFs usando CNN con atención</li>
+            <li>Soporte para modelos PyTorch (.pt) y Keras (.h5)</li>
+            <li>Interfaz web moderna y accesible</li>
+            <li>API REST para integración</li>
+        </ul>
+
+        <h3>Instrucciones de uso</h3>
+        <ol class="instructions">
+            <li>Coloca tu modelo entrenado en la carpeta raíz:
+                <code>GeneTFinder_model.pt</code> o <code>GeneTFinder_model.h5</code>
+            </li>
+            <li>Usa el panel Admin → Recargar modelo para activar sin reiniciar</li>
+            <li>Pega una secuencia o sube un archivo FASTA</li>
+            <li>¡Predice y explora los resultados!</li>
+        </ol>
+
+        <div class="team">
+            <h3>Equipo</h3>
+            <p>Desarrollado por Rios Matias · Ortega Alejo · Gaitan Agustin</p>
+            <p>Facultad de Ingeniería - UNER</p>
+            <a href="mailto:contacto@genetfinder.com" class="contact-link">contacto@genetfinder.com</a>
+        </div>
+    </div>
+</div>
+
+<style>
+.about-section {
+    max-width: 800px;
+    margin: 2rem auto;
+}
+.section-title {
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+}
+.lead {
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+}
+.feature-list, .instructions {
+    margin: 1rem 0 2rem 1.5rem;
+}
+.feature-list li, .instructions li {
+    margin-bottom: 0.5rem;
+    color: var(--text-muted);
+}
+code {
+    background: rgba(0,198,255,0.1);
+    padding: 0.2em 0.4em;
+    border-radius: 4px;
+    color: var(--primary);
+}
+.team {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+}
+.contact-link {
+    color: var(--primary);
+    text-decoration: none;
+}
+.contact-link:hover {
+    text-decoration: underline;
+}
+</style>

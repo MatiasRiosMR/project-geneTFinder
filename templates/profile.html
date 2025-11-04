@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Perfil — GeneTFinder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="profile-page">
+        <div class="profile-header">
+            <div class="user-info">
+                <h1>{{ session.username }}</h1>
+                <p class="muted">Miembro desde {{ session.created_at if session.created_at else 'N/A' }}</p>
+            </div>
+            <nav class="profile-nav">
+                <a href="/" class="btn secondary">Dashboard</a>
+                <a href="/logout" class="btn ghost">Cerrar sesión</a>
+            </nav>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>{{ stats.total }}</h3>
+                <p>Predicciones totales</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ stats.tf_count }}</h3>
+                <p>TFs identificados</p>
+            </div>
+            <div class="stat-card">
+                <h3>{{ '%.2f'|format(stats.highest_conf * 100) }}%</h3>
+                <p>Mayor confianza</p>
+            </div>
+        </div>
+
+        <section class="predictions-history">
+            <h2>Historial de predicciones</h2>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Secuencia</th>
+                            <th>Resultado</th>
+                            <th>Confianza</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for pred in predictions %}
+                        <tr>
+                            <td>{{ pred.timestamp.split('T')[0] }}</td>
+                            <td class="sequence"><code>{{ pred.sequence }}</code></td>
+                            <td><span class="badge {{ 'tf' if pred.result == 'TF' else 'not-tf' }}">{{ pred.result }}</span></td>
+                            <td>{{ '%.2f'|format(pred.confidence * 100) }}%</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

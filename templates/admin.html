@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Panel Admin — GeneTFinder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <main class="admin-page">
+        <header class="admin-header">
+            <div>
+                <h1>Panel de Administración</h1>
+                <p class="muted">Gestión del sistema</p>
+            </div>
+            <nav>
+                <a href="/admin/stats" class="btn secondary">Estadísticas</a>
+                <a href="/admin/export_csv" class="btn ghost">Exportar CSV</a>
+                <a href="/" class="btn ghost">Dashboard</a>
+            </nav>
+        </header>
+
+        <div class="admin-grid">
+            <section class="users-section">
+                <h2>Usuarios registrados</h2>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Rol</th>
+                                <th>Registro</th>
+                                <th>Predicciones</th>
+                                <th>Último uso</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for username, user in users.items() %}
+                            <tr>
+                                <td>{{ username }}</td>
+                                <td><span class="badge {{ 'admin' if user['role'] == 'admin' else 'user' }}">{{ user['role'] }}</span></td>
+                                <td>{{ user['created_at'].split('T')[0] }}</td>
+                                <td>{{ stats.get(username, {}).get('total', 0) }}</td>
+                                <td>{{ (stats.get(username, {}).get('last_prediction') or 'Nunca').split('T')[0] }}</td>
+                                <td>
+                                    {% if username != 'admin' %}
+                                    <form method="POST" action="{{ url_for('delete_user', username=username) }}" 
+                                          style="display:inline" onsubmit="return confirm('¿Eliminar usuario?')">
+                                        <button type="submit" class="btn danger small">Eliminar</button>
+                                    </form>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Acerca de — GeneTFinder</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+	body { background: linear-gradient(120deg,#181c24,#232a36); color:#f3f6fa; font-family:Inter,Arial,sans-serif; padding:2rem; }
+	.card { max-width:900px; margin:1.5rem auto; background:rgba(35,42,54,0.95); padding:1.5rem; border-radius:12px; box-shadow:0 8px 32px rgba(0,0,0,0.6); }
+	h1 { color:#00c6ff; }
+	.section { margin-top:1rem; color:#bfcbd6; line-height:1.45; }
+	.kv { display:flex; gap:1rem; margin-top:0.8rem; }
+	.kv dd { margin:0; color:#9fb0bf; }
+</style>
+</head>
+<body>
+	<div class="card">
+		<h1>GeneTFinder — Proyecto</h1>
+		<p class="section">GeneTFinder es un prototipo para clasificar factores de transcripción (TF) a partir de secuencias proteicas. Usa modelos 1D-CNN mejorados y técnicas de calibración para ofrecer probabilidades más fiables.</p>
+		<div class="section">
+			<h3>Características</h3>
+			<ul>
+				<li>Arquitectura: Conv1D, BatchNorm, Dropout y capas densas.</li>
+				<li>Entrenamiento: balance de clases, early stopping y temperature scaling.</li>
+				<li>Soporte para checkpoints PyTorch (.pt) y modelos Keras (.h5).</li>
+				<li>Interfaz: predicción en web, historial, exportación CSV y panel admin.</li>
+			</ul>
+		</div>
+		<div class="section">
+			<h3>Uso rápido (Modelos y recarga)</h3>
+			<p class="section">Para que la aplicación use un modelo entrenado, coloca el checkpoint PyTorch (.pt) en la raíz del proyecto con nombre <code>GeneTFinder_model.pt</code> o define la variable de entorno <code>MODEL_PATH</code> apuntando al archivo.</p>
+			<ul>
+				<li>Ruta por defecto: <code>c:\Users\matia\OneDrive\Escritorio\GeneTFinder\GeneTFinder_model.pt</code></li>
+				<li>Si usas un .h5, ubícalo como <code>GeneTFinder_model.h5</code> en la misma carpeta o <code>artifacts/</code>.</li>
+				<li>Desde la interfaz Admin puedes pulsar <strong>Recargar modelo</strong> para forzar la carga sin reiniciar el servidor.</li>
+			</ul>
+			<p class="section">Si la inferencia falla el servidor devolverá una predicción provisional (fallback) con una explicación; esto permite continuidad mientras se depura el modelo.</p>
+		</div>
+		<div class="section">
+			<h3>Contacto</h3>
+			<p class="kv"><strong>Autores:</strong><dd>Rios Matias · Ortega Alejo · Gaitan Agustin</dd></p>
+			<p class="kv"><strong>Email:</strong><dd><a href="mailto:contacto@genetfinder.com" style="color:#00c6ff;">contacto@genetfinder.com</a></dd></p>
+		</div>
+	</div>
+</body>
+</html>

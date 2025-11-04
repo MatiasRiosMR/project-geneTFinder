@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>GeneTFinder | Dashboard</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+  <link rel="manifest" href="site.webmanifest" />
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+  <header class="nav">
+    <a class="brand" href="index.html">
+      <img src="assets/logo.svg" alt="GeneTFinder" />
+      <span>GeneTFinder</span>
+    </a>
+    <nav>
+      <a href="index.html">Inicio</a>
+      <a aria-current="page">Dashboard</a>
+    </nav>
+    <button id="themeToggle" aria-label="Cambiar tema">🌓</button>
+  </header>
+
+  <main class="container">
+    <h1 class="reveal">Dashboard</h1>
+    <div class="grid-4">
+      <div class="card reveal">
+        <h4>Consultas/min</h4>
+        <div class="kpi" id="d-kpi-queries">--</div>
+        <canvas class="spark" id="sp-queries" width="240" height="60" aria-label="Tendencia consultas"></canvas>
+      </div>
+      <div class="card reveal">
+        <h4>TFs detectados</h4>
+        <div class="kpi" id="d-kpi-tfs">--</div>
+        <canvas class="spark" id="sp-tfs" width="240" height="60" aria-label="Tendencia TFs"></canvas>
+      </div>
+      <div class="card reveal">
+        <h4>Precisión promedio</h4>
+        <div class="kpi" id="d-kpi-acc">--%</div>
+        <canvas class="spark" id="sp-acc" width="240" height="60" aria-label="Tendencia precisión"></canvas>
+      </div>
+      <div class="card reveal">
+        <h4>Latencia (ms)</h4>
+        <div class="kpi" id="d-kpi-lat">--</div>
+        <canvas class="spark" id="sp-lat" width="240" height="60" aria-label="Tendencia latencia"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <span>© <span id="year"></span> GeneTFinder</span>
+  </footer>
+
+  <script>window.__API_BASE__ = null; /* Reemplazar por tu URL si ya tenés backend */</script>
+  <script src="scripts/realtime.js" type="module"></script>
+  <script src="scripts/app.js" type="module"></script>
+</body>
+</html>
