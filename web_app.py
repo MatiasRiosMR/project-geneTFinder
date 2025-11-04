@@ -1,3 +1,55 @@
+# NUEVO: instalador automático de dependencias (se ejecuta antes de cargar módulos pesados)
+import os, sys
+if True:
+	# sólo ejecutar si se pidió explícitamente o si no se ha completado antes
+	_auto_flag_env = os.environ.get("GF_AUTO_INSTALL", "0") == "1"
+	_auto_flag_cli = "--install-deps" in sys.argv
+	_already_done = os.environ.get("GF_AUTO_INSTALL_DONE", "0") == "1"
+	if (_auto_flag_env or _auto_flag_cli) and not _already_done:
+		try:
+			import subprocess
+			from pathlib import Path
+			print("[AUTO-INSTALL] GF_AUTO_INSTALL activo -> instalando dependencias necesarias...", file=sys.stderr)
+			# paquetes primarios que la app puede necesitar. El usuario puede ajustar GF_REQUIREMENTS
+			default_pkgs = [
+				"flask",
+				"numpy",
+				"torch",
+				"pyyaml",
+				"psutil",
+				"werkzeug",
+				"itsdangerous",
+				"click",
+				"requests"
+				# NOTE: tensorflow/torchvision se pueden agregar mediante GF_REQUIREMENTS o requirements.txt
+			]
+			# permitir que el usuario añada paquetes extra vía GF_REQUIREMENTS (coma separada)
+			extra = os.environ.get("GF_REQUIREMENTS", "")
+			if extra:
+				default_pkgs += [p.strip() for p in extra.split(",") if p.strip()]
+			# si existe requirements.txt en el repo, instalar ese archivo en prioridad
+			req_file = Path(__file__).parent / "requirements.txt"
+			if req_file.exists():
+				cmd = [sys.executable, "-m", "pip", "install", "-r", str(req_file)]
+				print(f"[AUTO-INSTALL] instalando desde {req_file} ...", file=sys.stderr)
+				subprocess.check_call(cmd)
+			else:
+				# instalar paquetes uno a uno para poder continuar si alguno falla
+				for pkg in default_pkgs:
+					try:
+						print(f"[AUTO-INSTALL] instalando {pkg} ...", file=sys.stderr)
+						subprocess.check_call([sys.executable, "-m", "pip", "install", pkg])
+					except subprocess.CalledProcessError as e:
+						print(f"[AUTO-INSTALL] fallo instalando {pkg}: {e}. Continúo con el siguiente.", file=sys.stderr)
+			# marcar como completado para evitar bucles al re-exec
+			os.environ["GF_AUTO_INSTALL_DONE"] = "1"
+			# re-ejecutar el proceso actual para que los nuevos paquetes sean importables
+			print("[AUTO-INSTALL] instalación finalizada. Reiniciando el proceso para aplicar cambios...", file=sys.stderr)
+			os.execv(sys.executable, [sys.executable] + sys.argv)
+		except Exception as e:
+			# No abortar la app si la instalación falla; mostrar aviso y continuar.
+			print(f"[AUTO-INSTALL] Error durante instalación automática: {e}", file=sys.stderr)
+
 import os
 import sys
 import json
@@ -1615,7 +1667,7 @@ def predict():
                 return render_template("result.html", error="Backend de modelo desconocido", seq=seq, stats=stats)
             return _render_result_inline(seq, error="Backend de modelo desconocido")
 
-        # Postprocesado con validación
+        # Postprocesado with validación
         if not isinstance(probs, np.ndarray):
             probs = np.array(probs)
         
