@@ -657,7 +657,6 @@ def save_users(users):
         json.dump(users, f, indent=2, ensure_ascii=False)
 
 def init_users():
-	# NUEVO: permitir configurar usuarios por entorno y evitar hardcodear contraseñas
 	admin_username = os.environ.get("GF_ADMIN_USER", "admin").strip() or "admin"
 	admin_pass_env = os.environ.get("GF_ADMIN_PASS")  # si no está, se usará 'admin' por defecto para facilidad
 	# Crear usuario estudiante por defecto para pruebas si no existe users.json
