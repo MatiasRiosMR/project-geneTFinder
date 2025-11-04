@@ -657,48 +657,59 @@ def save_users(users):
         json.dump(users, f, indent=2, ensure_ascii=False)
 
 def init_users():
-    # NUEVO: permitir configurar usuarios por entorno y evitar hardcodear contraseñas
-    admin_username = os.environ.get("GF_ADMIN_USER", "admin").strip() or "admin"
-    admin_pass_env = os.environ.get("GF_ADMIN_PASS")  # si no está, se genera aleatoria
-    student_enabled = os.environ.get("GF_CREATE_DEFAULT_STUDENT", "0") == "1"
-    student_username = os.environ.get("GF_USER_USER", "estudiante").strip() or "estudiante"
-    student_pass_env = os.environ.get("GF_USER_PASS")
+	# NUEVO: permitir configurar usuarios por entorno y evitar hardcodear contraseñas
+	admin_username = os.environ.get("GF_ADMIN_USER", "admin").strip() or "admin"
+	admin_pass_env = os.environ.get("GF_ADMIN_PASS")  # si no está, se usará 'admin' por defecto para facilidad
+	# Crear usuario estudiante por defecto para pruebas si no existe users.json
+	student_username = os.environ.get("GF_USER_USER", "estudiante").strip() or "estudiante"
+	student_pass_env = os.environ.get("GF_USER_PASS")  # si no está, se usará 'estudiante' por defecto
 
-    default = {
-        admin_username: {
-            "username": admin_username,
-            "password_hash": generate_password_hash(admin_pass_env or _gen_password()),
-            "role": "admin",
-            "created_at": datetime.now().isoformat(),
-            "connected": False,
-            "device": None,
-            "email": ""
-        }
-    }
-    if student_enabled:
-        default[student_username] = {
-            "username": student_username,
-            "password_hash": generate_password_hash(student_pass_env or _gen_password()),
-            "role": "user",
-            "created_at": datetime.now().isoformat(),
-            "connected": False,
-            "device": None,
-            "email": ""
-        }
+	# Si ya existe users.json, respetarlo
+	if USERS_FILE.exists():
+		try:
+			with open(USERS_FILE, "r", encoding="utf-8") as f:
+				data = json.load(f)
+			if isinstance(data, dict):
+				return data
+		except Exception:
+			pass
 
-    # Si ya existe users.json, respetarlo
-    if USERS_FILE.exists():
-        try:
-            with open(USERS_FILE, "r", encoding="utf-8") as f:
-                data = json.load(f)
-            if isinstance(data, dict):
-                return data
-        except Exception:
-            pass
-    save_users(default)
-    # Importante: no loguear contraseñas
-    logger.info(f"[USERS] Usuarios inicializados: {', '.join(default.keys())}. Configurar GF_ADMIN_PASS/GF_USER_PASS en entorno.")
-    return default
+	# Si no hay password en entorno, usar credenciales simples para permitir login desde el formulario
+	admin_password = admin_pass_env or "admin"
+	student_password = student_pass_env or "estudiante"
+
+	default = {
+		admin_username: {
+			"username": admin_username,
+			"password_hash": generate_password_hash(admin_password),
+			"role": "admin",
+			"created_at": datetime.now().isoformat(),
+			"connected": False,
+			"device": None,
+			"email": ""
+		},
+		student_username: {
+			"username": student_username,
+			"password_hash": generate_password_hash(student_password),
+			"role": "user",
+			"created_at": datetime.now().isoformat(),
+			"connected": False,
+			"device": None,
+			"email": ""
+		}
+	}
+
+	save_users(default)
+
+	# Informar en logs (una sola vez) cómo ingresar — útil para pruebas locales.
+	logger.info(
+		f"[USERS] Usuarios inicializados: {', '.join(default.keys())}. "
+		f"Credenciales por defecto -> {admin_username}/{admin_password} (admin), "
+		f"{student_username}/{student_password} (user). "
+		"En producción configure GF_ADMIN_PASS/GF_USER_PASS en el entorno."
+	)
+
+	return default
 
 users = init_users()
 
@@ -799,7 +810,7 @@ def inspect_checkpoint(path):
                         else:
                             shapes[k] = str(type(v).__name__)
                     except Exception:
-                        shapes[k] = "?"
+                        shapes[k] = "?";
                 info["shapes_sample"] = shapes
             elif isinstance(obj, (list, tuple)):
                 info["len_list"] = len(obj)
@@ -1623,6 +1634,7 @@ def predict():
                                 prob_tf = float(probs_t[-1])  # última clase = TF
                         else:
                             # Batch: [1, num_classes]
+                           
                             probs_t = torch.softmax(output, dim=-1).cpu().numpy()
                             prob_tf = float(probs_t[-1])
                         
