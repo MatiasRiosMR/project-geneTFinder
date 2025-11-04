@@ -1,25 +1,35 @@
 # GeneTFinder
 
-Clasificación de proteínas en Factores de Transcripción (TF) vs No‑TF con Deep Learning. Incluye:
-- Pipeline de datos (descarga desde UniProt y dataset balanceado)
-- Entrenamiento rápido (sintético) y completo (real)
-- Modelo CNN+BiLSTM+Attention y variante Simple para pruebas
-- App web (Flask) con predictor, caché TTL y panel admin en vivo (1s)
+Clasificador de proteínas que distingue Factores de Transcripción (TF) de No‑TF usando Deep Learning. Proyecto ligero con pipeline de datos, modelos (ligero y completo) y una app web para inferencia.
+
+Nota: el modelo principal se entrenó en Google Colab debido a la escasez de hardware local (GPU).
+
+Qué hace el modelo (resumen):
+- Entrada: secuencia de aminoácidos → codificada a índices.
+- Embedding: vectoriza aminoácidos para aprendizaje denso.
+- CNN (filtros k=3,5,7): detecta motivos locales (features locales).
+- BiLSTM: captura dependencias a largo plazo en ambas direcciones.
+- Attention: pondera posiciones relevantes de la secuencia.
+- Fully Connected + Softmax: produce probabilidad TF vs No‑TF.
+
+Hay también una versión simple (BiLSTM ligero) para pruebas rápidas.
 
 ## Requisitos
 
-Instalar dependencias:
+- Python 3.10+ recomendado.
+- Instalar dependencias:
 ```bash
 pip install -r requirements.txt
 ```
 
-Sugerido Python 3.10+ y, si tienes GPU, CUDA compatible con tu versión de PyTorch.
-
-## Prueba rápida (100 muestras sintéticas)
+## Prueba rápida (sin descargar datos)
 
 Para validar que todo funciona sin descargar datos:
 ```bash
 python train.py
+# genera dataset sintético pequeño y entrena un modelo simple
+python web_app.py
+# abrir /login y luego /predictor
 ```
 El script:
 - Genera automáticamente un dataset sintético balanceado de 100 secuencias (50 TF / 50 No‑TF)
@@ -99,19 +109,14 @@ Evita exponer credenciales por defecto en producción. Define GF_SECRET y GF_ADM
 
 ```
 geneTFinder/
-├── data/
-│   ├── example_tf.fasta
-│   ├── protein_dataset.csv (generado)
-│   └── users.json
-├── artifacts/ (checkpoints y metadatos opcionales)
-├── download_dataset.py
-├── model.py
-├── train.py
-├── web_app.py
-├── predict.py
-├── requirements.txt
-├── README.md
-└── site.webmanifest
+├─ data/ (users.json, datasets)
+├─ artifacts/ (checkpoints)
+├─ download_dataset.py
+├─ model.py
+├─ train.py
+├─ web_app.py
+├─ predict.py
+└─ README.md
 ```
 
 ## Modelos
@@ -137,3 +142,10 @@ Incluye site.webmanifest y favicon. Puedes servir estáticos desde /static y usa
 - “ModuleNotFoundError: model”: ejecuta web_app.py desde la carpeta del proyecto.
 - “best_model.pth no se carga”: verifica que exista en la raíz del proyecto o en /artifacts.
 - Descarga UniProt 400: usa el endpoint /stream y keywords (ya corregido en download_dataset.py).
+
+## Notas rápidas
+- El encoding usado por la web y train.py debe coincidir (AA_TO_IDX, max_length por defecto 300).
+- Si no hay modelo cargado la app usa heurísticos/feedback útil.
+- Para entrenamiento serio usar Colab/GPU y aumentar épocas/longitud máxima.
+
+Fin.
