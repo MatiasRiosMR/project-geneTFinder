@@ -1,0 +1,47 @@
+{
+  "admin": {
+    "username": "GTFinder_admin",
+    "password_hash": "scrypt:32768:8:1$9OvgZsqGj81ZKUXi$08384990eb9435ed01fa01b34220903fbc9130fc00888074d3a94c03fd28b4df2f15899c55b707c97fe55768e0657aaf61ace2c78a22e5b6ab3d0d6b5c475263",
+    "role": "admin",
+    "created_at": "2025-10-17T17:34:11.172898",
+    "connected": true,
+    "device": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "last_activity": "2025-11-06T21:19:32.477729"
+  },
+  "emiliavergara": {
+    "username": "emiliavergara",
+    "password_hash": "scrypt:32768:8:1$AiSm6bhQxWfzNujH$6e7b8ecf366f7fbde02a961e2d2c5683875b55f9c17451447f6a7ebdfd04ec9a39b91b636b71fb714d372b1f4accaf1247b5d1d12de721a46cbc74df2dba3ef0",
+    "role": "user",
+    "created_at": "2025-10-27T13:06:31.142503",
+    "connected": false,
+    "device": null,
+    "last_activity": "2025-10-27T13:11:34.236783"
+  },
+  "Alejo": {
+    "username": "Alejo",
+    "password_hash": "scrypt:32768:8:1$ePvpY04zIfDI0NOM$30570f6feb9f3f50f76c69a00189917361ad79f7625f8df89caad636ef28fb99260007c7594775fab19f5330a9ec5ed68aa570509e24b0ed2ddb5c4d7e859e70",
+    "role": "user",
+    "created_at": "2025-10-27T13:11:35.321994",
+    "connected": false,
+    "device": null,
+    "last_activity": "2025-10-27T13:12:12.988828"
+  },
+  "Estudiante": {
+    "username": "Estudiante",
+    "password_hash": "scrypt:32768:8:1$MIMbeZnCA2eK25Zl$5dc7b6c890ddf20a728b158a03b51b6fcabf93088594d234a9a799c13786179f6096be52cbf32d31bd99ae7ca2acf0e03488e892a2e9902a98b09bfeca2e42a2",
+    "role": "user",
+    "created_at": "2025-11-04T09:55:59.594813",
+    "connected": true,
+    "device": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
+    "last_activity": "2025-11-04T11:12:50.726537"
+  },
+  "user": {
+    "username": "user",
+    "password_hash": "scrypt:32768:8:1$AMCLIYJvvr6U2VY7$493520164456d25618eacac6f79629b22f07276c70289e563d9a93c40f022ec9e1d9a22146ceb92331b10526485d8ea0bc9d4072e983b0bc1084ce34bbd9165f",
+    "role": "user",
+    "created_at": "2025-11-06T21:20:18.252836",
+    "connected": false,
+    "device": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
+    "last_activity": "2025-11-06T21:44:34.729070"
+  }
+}

@@ -54,7 +54,7 @@ import os
 import sys
 import json
 from pathlib import Path
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone  # NUEVO: agregar timezone
 from functools import wraps
 import socket
 import platform
@@ -904,14 +904,14 @@ def fallback_predict(seq):
     confidence = float(max(score, 1.0 - score))
     return label, probs, confidence
 
-# Añadir validaciones biológicas
+# Añadir validaciones biológicas MENOS ESTRICTAS
 VALID_AMINO_ACIDS = set('ACDEFGHIKLMNPQRSTVWY')  # 20 aminoácidos estándar
-MIN_SEQUENCE_LENGTH = 50   # Mínimo realista para una proteína
-MAX_SEQUENCE_LENGTH = 3000  # Máximo razonable para un TF
+MIN_SEQUENCE_LENGTH = 30   # REDUCIDO: mínimo más realista
+MAX_SEQUENCE_LENGTH = 5000  # AUMENTADO: máximo más permisivo
 
 def validate_protein_sequence(seq: str) -> tuple[bool, str]:
     """
-    Valida que la secuencia sea una proteína válida.
+    Valida que la secuencia sea una proteína válida (MENOS ESTRICTA).
     Retorna (es_valida, mensaje_error)
     """
     if not seq:
@@ -919,7 +919,7 @@ def validate_protein_sequence(seq: str) -> tuple[bool, str]:
     
     seq_upper = seq.upper().strip()
     
-    # Verificar longitud
+    # Verificar longitud (más permisivo)
     if len(seq_upper) < MIN_SEQUENCE_LENGTH:
         return False, f"Secuencia muy corta. Mínimo {MIN_SEQUENCE_LENGTH} aminoácidos (tienes {len(seq_upper)})"
     
@@ -929,56 +929,27 @@ def validate_protein_sequence(seq: str) -> tuple[bool, str]:
     # Verificar que solo contenga aminoácidos válidos
     invalid_chars = set(seq_upper) - VALID_AMINO_ACIDS
     if invalid_chars:
-        return False, f"Caracteres inválidos detectados: {', '.join(sorted(invalid_chars))}. Solo se permiten los 20 aminoácidos estándar."
-    
-    # Verificar que no sea una secuencia repetitiva o artificial
-    # (ej: AAAAAAA... o XYXYXYXY...)
-    if len(set(seq_upper)) < 5:  # Menos de 5 aminoácidos diferentes
-        return False, "Secuencia demasiado repetitiva o artificial. Se requiere mayor diversidad de aminoácidos."
-    
-    # Verificar composición básica (una proteína real debe tener cierta proporción de cada tipo)
-    aa_counts = {aa: seq_upper.count(aa) for aa in VALID_AMINO_ACIDS}
-    total = len(seq_upper)
-    
-    # Ningún aminoácido debe representar más del 40% de la secuencia
-    for aa, count in aa_counts.items():
-        if count / total > 0.4:
-            return False, f"Secuencia sospechosa: aminoácido '{aa}' representa {count/total*100:.1f}% de la secuencia (máximo 40%)"
+        return False, f"Caracteres inválidos: {', '.join(sorted(invalid_chars))}"
     
     return True, "Secuencia válida"
 
 def calculate_sequence_quality_score(seq: str) -> float:
     """
-    Calcula un score de calidad de la secuencia (0-1).
-    Penaliza secuencias que no parezcan proteínas reales.
+    Calcula un score de calidad SIMPLE (0-1).
     """
     seq_upper = seq.upper().strip()
     
-    # Diversidad de aminoácidos (0-1)
+    # Solo diversidad básica
     diversity = len(set(seq_upper)) / 20.0
     
-    # Entropía (mide la aleatoriedad/naturalidad)
-    from collections import Counter
-    counts = Counter(seq_upper)
-    total = len(seq_upper)
-    entropy = -sum((count/total) * np.log2(count/total) for count in counts.values() if count > 0)
-    max_entropy = np.log2(20)  # Entropía máxima con 20 aminoácidos
-    entropy_score = entropy / max_entropy
-    
-    # Longitud apropiada (penalizar muy cortas o muy largas)
-    optimal_length = 500  # Longitud típica de un TF
-    length_score = 1.0 - abs(len(seq_upper) - optimal_length) / optimal_length
-    length_score = max(0.0, min(1.0, length_score))
-    
-    # Score combinado
-    quality = (diversity * 0.3 + entropy_score * 0.5 + length_score * 0.2)
-    
-    return quality
+    return diversity  # Score simple basado solo en diversidad
+
+# ...existing code...
 
 # ------------------ Rutas auxiliares (NUEVO) ------------------
 @app.route("/health")
 def health():
-    return jsonify({"status":"ok","time": datetime.utcnow().isoformat()}), 200
+    return jsonify({"status":"ok","time": datetime.now(timezone.utc).isoformat()}), 200
 
 @app.route("/admin/clear_cache", methods=["POST"])
 @admin_required
@@ -1575,7 +1546,6 @@ def _render_result_inline(seq, label=None, confidence=None, probs=None, error=No
 @login_required
 def predict():
     if request.method == "GET":
-        # Fallback a formulario inline si no existe templates/index.html
         tpl = BASE_DIR / "templates" / "index.html"
         if tpl.exists():
             return render_template("index.html", stats=stats)
@@ -1593,13 +1563,12 @@ def predict():
         except Exception:
             seq = ""
     if not seq:
-        # Fallback inline si no existe templates/result.html
         tpl_r = BASE_DIR / "templates" / "result.html"
         if tpl_r.exists():
             return render_template("result.html", error="Secuencia vacía", seq=seq, stats=stats)
         return _render_result_inline(seq, error="Secuencia vacía")
 
-    # NUEVO: caché de predicciones
+    # Caché
     try:
         key = _cache_key(seq)
         cached = prediction_cache.get(key)
@@ -1614,143 +1583,36 @@ def predict():
         pass
 
     try:
-        # IMPORTANTE: encoding igual que en train.py (centralizado)
-        encoded_tensor = encode_for_model(seq, max_length=300)
-
-        # Si no hay modelo cargado -> intentar cargar vía predict_module antes de fallback
+        # CRÍTICO: Si no hay modelo, intentar cargar
         if MODEL_BACKEND is None or model is None:
             try_load = _try_load_via_predict_module()
             if not try_load:
                 label, probs, confidence = fallback_predict(seq)
                 prediction_cache.set(key, {"label": label, "probs": probs, "confidence": confidence, "fallback": True})
                 stats["total"] += 1
-                stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": int(probs[1]>=0.5), "confidence": confidence, "fallback": True})
-                stats["history"] = stats["history"][:50]
-                tpl_r = BASE_DIR / "templates" / "result.html"
-                if tpl_r.exists():
-                    return render_template("result.html", seq=seq, label=label, confidence=confidence, probs=probs, stats=stats, fallback=True)
-                return _render_result_inline(seq, label=label, confidence=confidence, probs=probs, fallback=True)
-            # si logró cargar, continúa a la inferencia normal
-
-        probs = None
-
-        # Inferencia PyTorch (best_model.pth = salida sigmoide binaria)
-        if MODEL_BACKEND == "pytorch":
-            try:
-                # Si predict_module está disponible, reutilizar su predict() (misma tokenización/threshold)
-                if predict_module is not None:
-                    try:
-                        probs = _use_predict_module(model, seq, encoded_tensor, DEVICE)
-                        # si el módulo no devolvió probabilidades válidas -> fallback a inferencia directa
-                        if probs is None:
-                            raise RuntimeError("predict_module no devolvió probs válidas")
-                    except Exception:
-                        # FIX CRÍTICO: Inferencia directa con manejo correcto de logits
-                        with torch.no_grad():
-                            output = model(encoded_tensor).squeeze()
-                            
-                            # Determinar el tipo de salida del modelo
-                            if output.dim() == 0:
-                                # Salida escalar (modelo binario con  1 neurona)
-                                logit = float(output.item())
-                                prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
-                            elif output.dim() == 1:
-                                if output.size(0) == 1:
-                                    # Vector de tamaño 1 (modelo binario)
-                                    logit = float(output[0].item())
-                                    prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
-                                else:
-                                    # Vector de logits multi-clase [logit_no_tf, logit_tf]
-                                    probs_t = torch.softmax(output, dim=0).cpu().numpy()
-                                    prob_tf = float(probs_t[-1])  # última clase = TF
-                            else:
-                                # Batch: [1, num_classes]
-                                probs_t = torch.softmax(output, dim=-1).cpu().numpy()
-                                prob_tf = float(probs_t[-1])
-                            
-                            probs = np.array([1.0 - prob_tf, prob_tf])
-                else:
-                    # Sin predict_module: inferencia directa
-                    with torch.no_grad():
-                        output = model(encoded_tensor).squeeze()
-                        
-                        # Determinar el tipo de salida del modelo
-                        if output.dim() == 0:
-                            # Salida escalar (modelo binario con 1 neurona)
-                            logit = float(output.item())
-                            prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
-                        elif output.dim() == 1:
-                            if output.size(0) == 1:
-                                # Vector de tamaño 1 (modelo binario)
-                                logit = float(output[0].item())
-                                prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
-                            else:
-                                # Vector de logits multi-clase [logit_no_tf, logit_tf]
-                                probs_t = torch.softmax(output, dim=0).cpu().numpy()
-                                prob_tf = float(probs_t[-1])  # última clase = TF
-                        else:
-                            # Batch: [1, num_classes]
-                           
-                            probs_t = torch.softmax(output, dim=-1).cpu().numpy()
-                            prob_tf = float(probs_t[-1])
-                        
-                        probs = np.array([1.0 - prob_tf, prob_tf])
-                        
-            except Exception:
-                logger.exception("Error durante inferencia PyTorch, usando fallback")
-                label, probs, confidence = fallback_predict(seq)
-                prediction_cache.set(key, {"label": label, "probs": probs, "confidence": confidence, "fallback": True})
-                stats["total"] += 1
-                stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": int(probs[1]>=0.5), "confidence": confidence, "fallback": True})
+                stats["history"].insert(0, {"time": datetime.now(timezone.utc).isoformat(), "seq": seq[:80], "class": int(probs[1]>=0.5), "confidence": confidence, "fallback": True})
                 stats["history"] = stats["history"][:50]
                 tpl_r = BASE_DIR / "templates" / "result.html"
                 if tpl_r.exists():
                     return render_template("result.html", seq=seq, label=label, confidence=confidence, probs=probs, stats=stats, fallback=True)
                 return _render_result_inline(seq, label=label, confidence=confidence, probs=probs, fallback=True)
 
-        # Inferencia Keras (definir encoded_np para evitar variable no definida)
-        elif MODEL_BACKEND == "keras":
-            try:
-                encoded_np = encoded_tensor.squeeze(0).detach().cpu().numpy().astype("float32")
-                encoded_exp = np.expand_dims(encoded_np, axis=0)
-                try:
-                    probs = model.predict(encoded_exp, verbose=0)[0]
-                except Exception:
-                    permuted = np.transpose(encoded_exp, (0, 2, 1))
-                    probs = model.predict(permuted, verbose=0)[0]
-            except Exception:
-                logger.exception("Error durante inferencia Keras, usando fallback")
-                label, probs, confidence = fallback_predict(seq)
-                prediction_cache.set(key, {"label": label, "probs": probs, "confidence": confidence, "fallback": True})
-                stats["total"] += 1
-                stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": int(probs[1]>=0.5), "confidence": confidence, "fallback": True})
-                stats["history"] = stats["history"][:50]
-                tpl_r = BASE_DIR / "templates" / "result.html"
-                if tpl_r.exists():
-                    return render_template("result.html", seq=seq, label=label, confidence=confidence, probs=probs, stats=stats, fallback=True)
-                return _render_result_inline(seq, label=label, confidence=confidence, probs=probs, fallback=True)
+        # NUEVO: Usar SOLO predict() de predict.py
+        if predict_func is not None:
+            logger.info("[PREDICT] Usando predict() de predict.py")
+            prediction_label, prob_tf = predict_func(model, seq, DEVICE, max_length=300)
+            probs = np.array([1.0 - prob_tf, prob_tf])
+            prob_tf = float(probs[1])
+            is_tf = prediction_label == "TF"
+            pred = 1 if is_tf else 0
+            confidence = float(prob_tf) if is_tf else float(1.0 - prob_tf)
+            label = prediction_label
         else:
-            tpl_r = BASE_DIR / "templates" / "result.html"
-            if tpl_r.exists():
-                return render_template("result.html", error="Backend de modelo desconocido", seq=seq, stats=stats)
-            return _render_result_inline(seq, error="Backend de modelo desconocido")
+            logger.warning("[PREDICT] predict.py no disponible - usando fallback")
+            label, probs, confidence = fallback_predict(seq)
+            pred = 1 if probs[1] >= 0.5 else 0
 
-        # Postprocesado with validación
-        if not isinstance(probs, np.ndarray):
-            probs = np.array(probs)
-        
-        # Asegurar que las probabilidades sumen 1
-        probs = probs / probs.sum()
-        
-        prob_tf = float(probs[1]) if len(probs) > 1 else float(probs[0])
-        is_tf = prob_tf > THRESHOLD
-        pred =     1 if is_tf else 0
-        # confianza reportada como probabilidad de la clase elegida
-        confidence = float(prob_tf) if is_tf else float(1.0 - prob_tf)
-        label = "Factor de Transcripción (TF)" if is_tf else "No-TF"
-
-        # Log para debugging
-        logger.info(f"[PREDICT] Secuencia: {seq[:30]}... | Prob TF: {prob_tf:.4f} | Umbral: {THRESHOLD} | Resultado: {label}")
+        logger.info(f"[PREDICT] Resultado: {label} | Confianza: {confidence:.4f}")
 
         save_prediction(session.get('username'), seq, label, confidence)
         stats["total"] += 1
@@ -1758,7 +1620,7 @@ def predict():
             stats["tf"] += 1
         else:
             stats["no_tf"] += 1
-        stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": pred, "confidence": confidence})
+        stats["history"].insert(0, {"time": datetime.now(timezone.utc).isoformat(), "seq": seq[:80], "class": pred, "confidence": confidence})
         stats["history"] = stats["history"][:50]
 
         prediction_cache.set(key, {"label": label, "probs": probs.tolist(), "confidence": confidence, "fallback": False})
@@ -1768,29 +1630,20 @@ def predict():
         return _render_result_inline(seq, label=label, confidence=confidence, probs=probs.tolist(), fallback=False)
 
     except Exception:
-        logger.exception("Error en /predict (inesperado)")
+        logger.exception("Error en /predict")
         label, probs, confidence = fallback_predict(seq)
-        # Asegurar que `key` siempre exista y cachear de forma segura
         try:
             key = _cache_key(seq)
-            # convertir probs a lista de forma segura
-            try:
-                probs_list = probs.tolist() if hasattr(probs, "tolist") else list(probs) if isinstance(probs, (list, tuple)) else [float(probs)]
-            except Exception:
-                probs_list = [float(probs)] if not isinstance(probs, (list, tuple)) else list(probs)
-            try:
-                prediction_cache.set(key, {"label": label, "probs": probs_list, "confidence": confidence, "fallback": True})
-            except Exception:
-                logger.exception("No se pudo guardar la predicción en caché (fallback)")
+            probs_list = probs.tolist() if hasattr(probs, "tolist") else list(probs)
+            prediction_cache.set(key, {"label": label, "probs": probs_list, "confidence": confidence, "fallback": True})
         except Exception:
-            logger.exception("No se pudo generar clave de caché para la predicción fallback")
-        # Actualizar estadísticas de forma consistente
+            probs_list = [0.5, 0.5]
         try:
             stats["total"] += 1
-            stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": int((probs_list[1] if len(probs_list) > 1 else probs_list[0]) >= 0.5), "confidence": confidence, "fallback": True})
+            stats["history"].insert(0, {"time": datetime.now(timezone.utc).isoformat(), "seq": seq[:80], "class": int(probs_list[1] >= 0.5), "confidence": confidence, "fallback": True})
             stats["history"] = stats["history"][:50]
         except Exception:
-            logger.exception("No se pudo actualizar stats tras fallback")
+            pass
         tpl_r = BASE_DIR / "templates" / "result.html"
         if tpl_r.exists():
             return render_template("result.html", seq=seq, label=label, confidence=confidence, probs=probs_list, stats=stats, fallback=True)
@@ -1837,205 +1690,87 @@ def api_predict():
     if not seq:
         return jsonify({"error":"sequence required"}), 400
 
-    # VALIDACIÓN ESTRICTA DE ENTRADA
+    # VALIDACIÓN MÍNIMA (solo caracteres y longitud básica)
     is_valid, error_msg = validate_protein_sequence(seq)
-    quality_score = calculate_sequence_quality_score(seq)
     if not is_valid:
-        logger.warning(f"[PREDICT] ❌ Secuencia inválida: {error_msg} -> Clasificada como No-TF automáticamente")
-        confidence = 0.95
-        label = "No-TF"
-        pred_class = 0
-        try:
-            key = _cache_key(seq)
-            prediction_cache.set(key, {"label": label, "probs": [1.0 - confidence, confidence], "confidence": confidence, "fallback": False})
-        except Exception:
-            pass
-        try:
-            save_prediction(session.get("username"), seq, label, confidence)
-            stats["total"] += 1
-            stats["no_tf"] += 1
-            stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": pred_class, "confidence": confidence})
-            stats["history"] = stats["history"][:50]
-        except Exception:
-            logger.exception("No se pudo registrar predicción para secuencia inválida")
+        logger.warning(f"[PREDICT] Secuencia inválida: {error_msg}")
         return jsonify({
-            "label": label,
-            "class": pred_class,
-            "confidence": confidence,
-            "probs": [1.0 - confidence, confidence],
-            "quality_score": quality_score,
-            "validation_failed": True,
-            "validation_details": error_msg,
-            "cached": False,
-            "fallback": False,
-            "stats": stats
-        }), 200
+            "error": "Secuencia inválida",
+            "details": error_msg,
+            "label": "No-TF",
+            "class": 0,
+            "confidence": 0.95,
+            "validation_failed": True
+        }), 400
 
-    # Si la calidad es muy baja, devolver No-TF
-    if quality_score < 0.3:
-        logger.warning(f"[PREDICT] ⚠️ Secuencia de baja calidad (score: {quality_score:.3f}) -> Clasificada como No-TF")
-        confidence = max(0.7, 1.0 - quality_score)
-        label = "No-TF"
-        pred_class = 0
-        try:
-            key = _cache_key(seq)
-            prediction_cache.set(key, {"label": label, "probs": [1.0 - confidence, confidence], "confidence": confidence, "fallback": False})
-        except Exception:
-            pass
-        try:
-            save_prediction(session.get("username"), seq, label, confidence)
-            stats["total"] += 1
-            stats["no_tf"] += 1
-            stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": pred_class, "confidence": confidence})
-            stats["history"] = stats["history"][:50]
-        except Exception:
-            logger.exception("No se pudo registrar predicción para secuencia baja calidad")
-        return jsonify({
-            "label": label,
-            "class": pred_class,
-            "confidence": confidence,
-            "probs": [1.0 - confidence, confidence],
-            "quality_score": quality_score,
-            "low_quality": True,
-            "cached": False,
-            "fallback": False,
-            "stats": stats
-        }), 200
+    # Calcular quality score simple
+    quality_score = calculate_sequence_quality_score(seq)
+    logger.info(f"[PREDICT] Quality score: {quality_score:.3f}")
+
+    # Caché
+    try:
+        key = _cache_key(seq)
+        cached = prediction_cache.get(key)
+        if cached:
+            return jsonify({
+                "label": cached["label"],
+                "class": 1 if cached["label"] == "TF" else 0,
+                "confidence": cached["confidence"],
+                "probs": cached["probs"],
+                "quality_score": quality_score,
+                "fallback": cached.get("fallback", False),
+                "cached": True,
+                "stats": stats
+            })
+    except Exception:
+        pass
 
     try:
-        # CRÍTICO: Si no hay modelo cargado, FORZAR error
+        # CRÍTICO: Verificar modelo
         if MODEL_BACKEND is None or model is None:
-            logger.error("[PREDICT] ❌ NO HAY MODELO CARGADO - Intentando cargar ahora...")
+            logger.error("[PREDICT] NO HAY MODELO CARGADO")
             MODEL_BACKEND, model, MODEL_TEMPERATURE = load_model_backend()
             
             if MODEL_BACKEND is None or model is None:
                 return jsonify({
-                    "error": "Modelo no disponible. El modelo entrenado no pudo ser cargado.",
-                    "details": "Verifica que artifacts/best_model.pth existe y es válido.",
+                    "error": "Modelo no disponible",
+                    "details": "Verifica que artifacts/best_model.pth existe",
                     "fallback_used": False
                 }), 503
 
-        logger.info(f"[PREDICT] ✓ Usando modelo: {MODEL_BACKEND} | Device: {DEVICE}")
+        logger.info(f"[PREDICT] Usando modelo: {MODEL_BACKEND} | Device: {DEVICE}")
 
-        # NUEVO: Usar predict() de predict.py directamente si está disponible
+        # USAR SOLO predict() de predict.py
         if predict_func is not None:
-            try:
-                logger.info("[PREDICT] Usando predict() de predict.py")
-                prediction_label, prob_tf = predict_func(model, seq, DEVICE, max_length=300)
-                
-                # Normalizar salida de predict.py
-                probs = np.array([1.0 - prob_tf, prob_tf])
-                
-                logger.info(f"[PREDICT] predict.py devolvió - Label: {prediction_label} | Prob TF: {prob_tf:.4f}")
-                
-            except Exception as e:
-                logger.exception(f"Error usando predict() de predict.py, usando fallback: {e}")
-                # Fallback a lógica original si predict.py falla
-                raise
-        else:
-            # Si no hay predict_func, usar lógica original
-            logger.info("[PREDICT] predict.py no disponible, usando lógica interna")
+            logger.info("[PREDICT] Usando predict() de predict.py")
+            prediction_label, prob_tf = predict_func(model, seq, DEVICE, max_length=300)
             
-            # Usar mismo encoding que train.py (centralizado)
-            encoded_tensor = encode_for_model(seq, max_length=300)
+            # Normalizar salida
+            probs = np.array([1.0 - prob_tf, prob_tf])
+            probs = probs / probs.sum()
+            
+            prob_tf = float(probs[1])
+            is_tf = prediction_label == "TF"
+            pred = 1 if is_tf else 0
+            confidence = float(prob_tf) if is_tf else float(1.0 - prob_tf)
+            label = prediction_label
+            
+            logger.info(f"[PREDICT] predict.py -> Label: {label} | Prob TF: {prob_tf:.4f}")
+            
+        else:
+            logger.warning("[PREDICT] predict.py no disponible - usando fallback")
+            return jsonify({
+                "error": "predict.py no disponible",
+                "details": "No se pudo cargar el módulo de predicción",
+                "fallback_used": True
+            }), 500
 
-            if MODEL_BACKEND == "pytorch":
-                try:
-                    with torch.no_grad():
-                        model.eval()
-                        model.to(DEVICE)
-                        
-                        output = model(encoded_tensor).squeeze()
-                        
-                        logger.info(f"[PREDICT] Output raw shape: {output.shape} | Output: {output}")
-                        
-                        # Determinar el tipo de salida del modelo
-                        if output.dim() == 0:
-                            # Salida escalar (modelo binario con 1 neurona)
-                            logit = float(output.item())
-                            prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
-                            logger.info(f"[PREDICT] Escalar - Logit: {logit:.4f} | Prob TF: {prob_tf:.4f}")
-                        elif output.dim() == 1:
-                            if output.size(0) == 1:
-                                # Vector de tamaño 1 (modelo binario)
-                                logit = float(output[0].item())
-                                prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
-                                logger.info(f"[PREDICT] Vector[1] - Logit: {logit:.4f} | Prob TF: {prob_tf:.4f}")
-                            else:
-                                # Vector de logits multi-clase [logit_no_tf, logit_tf]
-                                probs_t = torch.softmax(output, dim=0).cpu().numpy()
-                                prob_tf = float(probs_t[-1])  # última clase = TF
-                                logger.info(f"[PREDICT] Multi-clase - Probs: {probs_t} | Prob TF: {prob_tf:.4f}")
-                        else:
-                            # Batch: [1, num_classes]
-                            probs_t = torch.softmax(output, dim=-1).cpu().numpy()
-                            prob_tf = float(probs_t[0][-1])  # última clase del primer batch
-                            logger.info(f"[PREDICT] Batch - Probs: {probs_t} | Prob TF: {prob_tf:.4f}")
-                        
-                        probs = np.array([1.0 - prob_tf, prob_tf])
-                        
-                except Exception as e:
-                    logger.exception(f"❌ Error crítico durante inferencia PyTorch")
-                    return jsonify({
-                        "error": "Error en inferencia del modelo",
-                        "details": str(e),
-                        "model_backend": MODEL_BACKEND,
-                        "fallback_used": False
-                    }), 500
-
-            elif MODEL_BACKEND == "keras":
-                try:
-                    encoded_np = encoded_tensor.squeeze(0).detach().cpu().numpy().astype("float32")
-                    encoded_exp = np.expand_dims(encoded_np, axis=0)
-                    try:
-                        probs = model.predict(encoded_exp, verbose=0)[0]
-                    except Exception:
-                        permuted = np.transpose(encoded_exp, (0, 2, 1))
-                        probs = model.predict(permuted, verbose=0)[0]
-                    prob_tf = float(probs[-1])
-                    logger.info(f"[PREDICT] Keras - Probs: {probs} | Prob TF: {prob_tf:.4f}")
-                except Exception as e:
-                    logger.exception(f"❌ Error crítico durante inferencia Keras")
-                    return jsonify({
-                        "error": "Error en inferencia del modelo Keras",
-                        "details": str(e),
-                        "fallback_used": False
-                    }), 500
-            else:
-                return jsonify({
-                    "error": f"Backend desconocido: {MODEL_BACKEND}",
-                    "fallback_used": False
-                }), 500
-
-        # Postprocesado con UMBRAL MÁS ESTRICTO y penalización por calidad
-        if not isinstance(probs, np.ndarray):
-            probs = np.array(probs)
-        
-        probs = probs / probs.sum()
-        
-        prob_tf = float(probs[1]) if len(probs) > 1 else float(probs[0])
-        
-        # AJUSTAR probabilidad según calidad de secuencia
-        adjusted_prob_tf = prob_tf * quality_score
-        
-        # UMBRAL MÁS ESTRICTO: solo clasificar como TF si prob >= 0.7 Y quality >= 0.5
-        STRICT_THRESHOLD = 0.7
-        is_tf = adjusted_prob_tf >= STRICT_THRESHOLD and quality_score >= 0.5
-        
-        pred = 1 if is_tf else 0
-        confidence = float(adjusted_prob_tf) if is_tf else float(1.0 - adjusted_prob_tf)
-        label = "TF" if is_tf else "No-TF"
-        
-        # Log detallado
-        logger.info(f"[PREDICT] ✓ RESULTADO FINAL:")
+        # Log resultado
+        logger.info(f"[PREDICT] RESULTADO FINAL:")
         logger.info(f"  └─ Secuencia: {seq[:30]}...")
-        logger.info(f"  └─ Prob TF (raw): {prob_tf:.4f}")
-        logger.info(f"  └─ Prob TF (ajustada): {adjusted_prob_tf:.4f}")
-        logger.info(f"  └─ Quality score: {quality_score:.4f}")
-        logger.info(f"  └─ Umbral estricto: {STRICT_THRESHOLD}")
-        logger.info(f"  └─ Predicción: {label} (class={pred})")
+        logger.info(f"  └─ Prob TF: {prob_tf:.4f}")
+        logger.info(f"  └─ Predicción: {label}")
         logger.info(f"  └─ Confianza: {confidence:.4f}")
-        logger.info(f"  └─ Modelo usado: {MODEL_BACKEND}")
         
         # Cachear y guardar
         try:
@@ -2050,7 +1785,7 @@ def api_predict():
             stats["tf"] += 1
         else:
             stats["no_tf"] += 1
-        stats["history"].insert(0, {"time": datetime.utcnow().isoformat(), "seq": seq[:80], "class": pred, "confidence": confidence})
+        stats["history"].insert(0, {"time": datetime.now(timezone.utc).isoformat(), "seq": seq[:80], "class": pred, "confidence": confidence})
         stats["history"] = stats["history"][:50]
         
         return jsonify({
@@ -2058,16 +1793,15 @@ def api_predict():
             "class": pred, 
             "confidence": confidence,
             "raw_probability": prob_tf,
-            "adjusted_probability": adjusted_prob_tf,
             "quality_score": quality_score,
             "probs": probs.tolist(),
             "model_used": MODEL_BACKEND,
-            "threshold": STRICT_THRESHOLD,
+            "threshold": THRESHOLD,
             "fallback": False,
             "stats": stats
         })
     except Exception as e:
-        logger.exception("❌ Error inesperado en /api/predict")
+        logger.exception("Error en /api/predict")
         return jsonify({
             "error": "Error interno del servidor",
             "details": str(e),
@@ -2175,7 +1909,6 @@ def clear_stats():
     stats["tf"] = 0
     stats["no_tf"] = 0
     stats["history"] = []
-    # Borra predicciones guardadas si existen
     try:
         if os.path.exists(PREDICTIONS_FILE):
             os.remove(PREDICTIONS_FILE)

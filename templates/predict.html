@@ -730,7 +730,7 @@
                     </div>
                     
                     <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        🔬 Analizar Secuencia
+                         Analizar Secuencia
                     </button>
                 </form>
             </div>
@@ -862,8 +862,10 @@
             const probNoTF = document.getElementById('probNoTF');
             const probTF = document.getElementById('probTF');
             
-            const isTF = data.class === 1 || data.label === 'TF';
             const conf = (data.confidence * 100).toFixed(1);
+            
+            // Si la confianza es menor a 70%, siempre es No-TF
+            const isTF = conf >= 70 && (data.class === 1 || data.label === 'TF');
             
             label.textContent = isTF ? '✓ Factor de Transcripción (TF)' : '✗ No es Factor de Transcripción';
             label.className = 'result-label ' + (isTF ? 'result-tf' : 'result-no-tf');

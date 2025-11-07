@@ -1,0 +1,542 @@
+{
+  "admin": [
+    {
+      "timestamp": "2025-10-22T15:25:26.973043",
+      "sequence": "hnmhmhgvn",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.5860381722450256
+    },
+    {
+      "timestamp": "2025-10-22T15:30:03.639013",
+      "sequence": "dsasdasdasdas",
+      "result": "No-TF",
+      "confidence": 0.507087379693985
+    },
+    {
+      "timestamp": "2025-10-26T17:03:44.401264",
+      "sequence": "asdsadasd",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.9980652928352356
+    },
+    {
+      "timestamp": "2025-10-26T17:03:51.041786",
+      "sequence": "asdsadasdasdadasadad",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.9847245812416077
+    },
+    {
+      "timestamp": "2025-10-26T17:03:54.492260",
+      "sequence": "asdsadasdasdadasadadadsadasdsadasdasdsd",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.9446730613708496
+    },
+    {
+      "timestamp": "2025-10-26T17:07:14.169497",
+      "sequence": "asdasdsadasdasdasdasd",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.7150101661682129
+    },
+    {
+      "timestamp": "2025-10-26T17:07:18.343968",
+      "sequence": "asdasdsadasdasdasdasdasddddddddddddddddddddddddd",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.7089604139328003
+    },
+    {
+      "timestamp": "2025-10-26T17:07:21.270403",
+      "sequence": "asdasdsadasdasdasdasdasdddddddddddddddddddddddddasdddddddddddddddddddd",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.7035296559333801
+    },
+    {
+      "timestamp": "2025-10-26T17:43:17.414199",
+      "sequence": "<zxz<x<x<zx<",
+      "result": "TF",
+      "confidence": 0.7310582399368286
+    },
+    {
+      "timestamp": "2025-10-26T17:49:06.323816",
+      "sequence": "dsadasddaddasdasdsad",
+      "result": "TF",
+      "confidence": 0.7207875847816467
+    },
+    {
+      "timestamp": "2025-10-26T17:52:09.844733",
+      "sequence": "dsasadas",
+      "result": "TF",
+      "confidence": 0.7251542806625366
+    },
+    {
+      "timestamp": "2025-10-26T17:52:15.646880",
+      "sequence": "asdddddddddddddddddddddddd",
+      "result": "TF",
+      "confidence": 0.719180166721344
+    },
+    {
+      "timestamp": "2025-10-26T17:52:25.872911",
+      "sequence": "asddsa",
+      "result": "TF",
+      "confidence": 0.7292699217796326
+    },
+    {
+      "timestamp": "2025-10-26T17:52:32.289369",
+      "sequence": "asddsaasddddddddddddd",
+      "result": "TF",
+      "confidence": 0.7212170958518982
+    },
+    {
+      "timestamp": "2025-10-27T15:36:19.893089",
+      "sequence": "dsfsfdsfsdfs",
+      "result": "TF",
+      "confidence": 0.7198305130004883
+    },
+    {
+      "timestamp": "2025-10-27T15:48:13.691772",
+      "sequence": "ASDASDDASDSADSA",
+      "result": "TF",
+      "confidence": 0.7228732109069824
+    },
+    {
+      "timestamp": "2025-11-03T20:59:25.853025",
+      "sequence": "asdaasdasdadddsad",
+      "result": "TF",
+      "confidence": 0.7202528715133667
+    },
+    {
+      "timestamp": "2025-11-03T20:59:29.564768",
+      "sequence": "asdaasdasdadddsadasdadasd",
+      "result": "TF",
+      "confidence": 0.7161323428153992
+    },
+    {
+      "timestamp": "2025-11-03T20:59:34.110478",
+      "sequence": "asdaasdasdadddsadasdadasdasdaaaaaaaaaaaaaaaaaaaa",
+      "result": "TF",
+      "confidence": 0.6958067417144775
+    },
+    {
+      "timestamp": "2025-11-03T20:59:36.988746",
+      "sequence": "asdaasdasdadddsadasdadasdasdaaaaaaaaaaaaaaaaaaaaasdddddddddddddddd",
+      "result": "TF",
+      "confidence": 0.6994837522506714
+    },
+    {
+      "timestamp": "2025-11-03T20:59:40.117214",
+      "sequence": "asdaasdasdadddsadasdadasdasdaaaaaaaaaaaaaaaaaaaaasddddddddddddddddasddasdsadas",
+      "result": "TF",
+      "confidence": 0.7032759189605713
+    },
+    {
+      "timestamp": "2025-11-03T21:33:33.898658",
+      "sequence": "AHSHASFHDSFDSFSDFSFSFSDFSASDADDSADADDADASDASDSADASDASDASDASSADDASF",
+      "result": "No-TF",
+      "confidence": 0.7634636155769019
+    },
+    {
+      "timestamp": "2025-11-04T10:47:16.418044",
+      "sequence": "dasdadasd",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-04T10:47:56.962920",
+      "sequence": "fddfafasdasd",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-04T11:17:10.024441",
+      "sequence": "Ajakakajaa",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-04T15:41:15.999754",
+      "sequence": "sdadaffdgjfghdgdhjgdgd",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T15:00:45.075445",
+      "sequence": "asdasdas",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T15:00:49.149138",
+      "sequence": "asdasdasasddddddddddddddddddddddddddddddddddddddd",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T15:00:55.953404",
+      "sequence": "sdfdsfdafasa",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T15:10:29.554604",
+      "sequence": "sdfdsfdafasaasdsada",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T15:10:33.967350",
+      "sequence": "edfadfdafa",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T15:13:48.412262",
+      "sequence": "asdasdadasdas",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T15:13:55.918042",
+      "sequence": "ADSALSDKASKDAKSDASDK",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T15:58:36.993753",
+      "sequence": "asdadadasdasdxasdas",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T16:02:57.223756",
+      "sequence": "asdfafadf",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T16:02:59.493552",
+      "sequence": "asdfafadf",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T16:03:02.724301",
+      "sequence": "sadasdavxccccv",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T17:04:47.891012",
+      "sequence": "sdfsdfdfsdfdsfdsfsdf",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T17:27:39.141129",
+      "sequence": "asdasdasdsadsad",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T17:27:49.083826",
+      "sequence": "MGRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEI",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T17:28:07.181786",
+      "sequence": "AAAAAATTTTTGGGGGCCCCCTTTTTAAAAA",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T17:28:31.771108",
+      "sequence": "MGRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIAAAAAA",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T17:57:37.820373",
+      "sequence": "asdsadasdasdsadsadas",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T17:57:41.851469",
+      "sequence": "asdsadasdasdsadsadasasdsaddddddddddddddddddddddddddddddddddddddddddd",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T20:52:24.798389",
+      "sequence": "asdsadsadasd",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T20:52:28.737373",
+      "sequence": "asdsadsadasdasdasdsadasdsadsadasdsada",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T20:52:38.648547",
+      "sequence": "asdasdsafregbvfes",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T20:55:00.385798",
+      "sequence": "asdsa",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T20:55:07.575328",
+      "sequence": "asdsdasdas",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T20:55:10.065983",
+      "sequence": "asdsdasdasasdasdadasd",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T20:55:30.000586",
+      "sequence": "asdasda",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T20:55:35.740151",
+      "sequence": "ÑAAAÑALALSLS",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-06T20:59:22.931526",
+      "sequence": "asdsadasd",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-07T11:16:33.399131",
+      "sequence": "sdfsfdsfsdf",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-07T11:16:36.428844",
+      "sequence": "sdfsfdsfsdfAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-07T11:16:38.651897",
+      "sequence": "sdfsfdsfsdfAAAAAAAAAAAAAAAAAAAAAAAAAADSFDSFSD",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-07T11:16:41.647282",
+      "sequence": "sdfsfdsfsdfAAAAAAAAAAAAAAAAAAAAAAAAAADSFDSFSDDSADSA",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-07T11:29:25.156693",
+      "sequence": "sadafasfhsafafafsadasdadasafsfasf",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-07T11:30:23.332457",
+      "sequence": "RQRRNELKRSFFALRDQIPELENNEKAPKVVILKKATAYILSVQAEEQKLISEEDLLRKRRE",
+      "result": "No-TF",
+      "confidence": 0.5298473056484413
+    },
+    {
+      "timestamp": "2025-11-07T11:31:13.591792",
+      "sequence": "CKRHGPCKRHGPCKRHGPCKRHGPCKRHGPCKRHG",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-07T11:34:57.764109",
+      "sequence": "CKRHGPCKRHGPCKRHGPCKRHGPCKRHGPCKRHG",
+      "result": "TF",
+      "confidence": 0.7304489612579346
+    },
+    {
+      "timestamp": "2025-11-07T11:36:31.990111",
+      "sequence": "RQRRNELKRSFFALRDQIPELENNEKAPKVVILKKATAYILSVQAEEQKLISEEDLLRKRRE",
+      "result": "TF",
+      "confidence": 0.7018927335739136
+    },
+    {
+      "timestamp": "2025-11-07T11:36:58.964595",
+      "sequence": "CNACGLYHKMNGQNRPLIRPKKRLVSKCQYWHLMSLKNRPVPGAEYDLRRR",
+      "result": "TF",
+      "confidence": 0.7255750298500061
+    },
+    {
+      "timestamp": "2025-11-07T11:37:29.206417",
+      "sequence": "DLAGHGQTGVDGPSIVHRKCFYEEYPDRHPPLKSKVYELPDGQVITIGNERFRC",
+      "result": "TF",
+      "confidence": 0.6292363405227661
+    },
+    {
+      "timestamp": "2025-11-07T11:42:12.340733",
+      "sequence": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "result": "No-TF",
+      "confidence": 0.49999988079071045
+    },
+    {
+      "timestamp": "2025-11-07T11:48:25.256637",
+      "sequence": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDI",
+      "result": "TF",
+      "confidence": 0.702944815158844
+    },
+    {
+      "timestamp": "2025-11-07T11:48:41.886639",
+      "sequence": "DLAGHGQTGVDGPSIVHRKCFYEEYPDRHPPLKSKVYELPDGQVITIGN",
+      "result": "TF",
+      "confidence": 0.6420876383781433
+    },
+    {
+      "timestamp": "2025-11-07T12:00:52.632894",
+      "sequence": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "result": "No-TF",
+      "confidence": 0.49999791383743286
+    },
+    {
+      "timestamp": "2025-11-07T12:01:08.051681",
+      "sequence": "ADASDSADSADSDDASDASDASDSADASDSADASFASFD",
+      "result": "TF",
+      "confidence": 0.7036709785461426
+    }
+  ],
+  "AlejoOrtega": [
+    {
+      "timestamp": "2025-10-22T15:31:43.572365",
+      "sequence": "sadfaddddddddddfaaaaaaadfffffffffffffffffffffffffffffffffffffffff",
+      "result": "No-TF",
+      "confidence": 0.8920704573392868
+    },
+    {
+      "timestamp": "2025-10-22T15:32:40.224896",
+      "sequence": "MGRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIALIIFNSTNKLFQYAST\r\nDMDKVLLKYTEYNEPHES...",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.7706749439239502
+    },
+    {
+      "timestamp": "2025-10-22T15:40:12.619425",
+      "sequence": "MGRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIALIIFNSTNKLFQYAST\r\nDMDKVLLKYTEYNEPHES...",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.7706749439239502
+    },
+    {
+      "timestamp": "2025-10-22T15:42:53.554742",
+      "sequence": "ASKKSADKSANFJSCXCZZDADASJFKHEJJEABCJXCZKAOJDSKASDKASFKAKFJLASJFKLANCXNCJDSBHNDJA...",
+      "result": "Factor de Transcripción (TF)",
+      "confidence": 0.5424781441688538
+    }
+  ],
+  "saraB": [
+    {
+      "timestamp": "2025-10-22T15:43:02.127081",
+      "sequence": "AAAAATTTAAATTAAAGGGACACAGAACATAGACAGTACGTAGGATTCAAGTAACGTTGTTTTGGCCGAATTCGGA",
+      "result": "No-TF",
+      "confidence": 0.9560754410922527
+    }
+  ],
+  "emiliavergara": [
+    {
+      "timestamp": "2025-10-27T13:08:48.511385",
+      "sequence": "AAATGCTACCTAGCTCGTATCGACCCCCGGGATTTGATATATATATATAATGCGCGCGCGCGCGAAAAAATTTTTTTGCC...",
+      "result": "No-TF",
+      "confidence": 0.49999988079071045
+    },
+    {
+      "timestamp": "2025-10-27T13:09:54.629805",
+      "sequence": "ATATATATATATGCGCGCGCGCGCGCGCGCGATTATCTCTTTTTTTAGGGGGCCTTATTAEDIICHUECBATATATATAT...",
+      "result": "No-TF",
+      "confidence": 0.4022126793861389
+    },
+    {
+      "timestamp": "2025-10-27T13:10:15.140659",
+      "sequence": "ATATATATATATCGCGCGCGCGCGTTTTTAGAGGC1",
+      "result": "TF",
+      "confidence": 0.6471609473228455
+    },
+    {
+      "timestamp": "2025-10-27T13:11:34.302130",
+      "sequence": "(G/T)GGGCGG(G/A)(G/A)(C/T)",
+      "result": "TF",
+      "confidence": 0.7293006181716919
+    }
+  ],
+  "Alejo": [
+    {
+      "timestamp": "2025-10-27T13:12:05.813976",
+      "sequence": "ADSADSFSDGSGDGDSGSS",
+      "result": "TF",
+      "confidence": 0.7178183794021606
+    }
+  ],
+  "examples": {
+    "TF": {
+      "sequence": "MGRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEI",
+      "label": "Factor de Transcripción (TF)",
+      "notes": "Ejemplo sintético de secuencia con características de TF"
+    },
+    "No-TF": {
+      "sequence": "AAAAATTTAAATTAAAGGGACACAGAACATAGACAGTACGTAGG",
+      "label": "No-TF",
+      "notes": "Ejemplo sintético de secuencia no TF"
+    }
+  },
+  "Estudiante": [
+    {
+      "timestamp": "2025-11-04T10:51:32.337565",
+      "sequence": "KRRIRRERNKMAAAKCRNRRRE",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-04T10:53:37.420395",
+      "sequence": "KRRIRRERNKMAAAKCRNRRRE",
+      "result": "No-TF",
+      "confidence": 0.95
+    },
+    {
+      "timestamp": "2025-11-07T11:53:33.652624",
+      "sequence": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDI",
+      "result": "TF",
+      "confidence": 0.702944815158844
+    },
+    {
+      "timestamp": "2025-11-07T11:53:50.713447",
+      "sequence": "DLAGHGQTGVDGPSIVHRKCFYEEYPDRHPPLKSKVYELPDGQVITIGN",
+      "result": "TF",
+      "confidence": 0.6420876383781433
+    },
+    {
+      "timestamp": "2025-11-07T11:57:30.064753",
+      "sequence": "DLAGHGQTGVDGPSIVHRKCFYEEYPDRHPPLKSKVYELPDGQVITIGN",
+      "result": "TF",
+      "confidence": 0.6420876383781433
+    },
+    {
+      "timestamp": "2025-11-07T11:58:44.359189",
+      "sequence": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDI",
+      "result": "TF",
+      "confidence": 0.702944815158844
+    },
+    {
+      "timestamp": "2025-11-07T11:59:03.097916",
+      "sequence": "VHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFE",
+      "result": "TF",
+      "confidence": 0.6485884189605713
+    }
+  ]
+}

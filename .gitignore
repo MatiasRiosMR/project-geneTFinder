@@ -1,7 +1,4 @@
-# Modelos y datos
-*.h5
-users.json
-predictions.json
+
 
 # Python
 __pycache__/
