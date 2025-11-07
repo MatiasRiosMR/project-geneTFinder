@@ -166,6 +166,9 @@ except Exception:
 
 # Intentar importar predict desde varias ubicaciones conocidas (raíz o src)
 predict_module = None
+predict_func = None
+encode_sequence_func = None
+
 for mod_name in ("predict", "src.predict"):
     try:
         predict_module = importlib.import_module(mod_name)
@@ -175,6 +178,14 @@ for mod_name in ("predict", "src.predict"):
                 THRESHOLD = float(getattr(predict_module, "THRESHOLD"))
             except Exception:
                 pass
+        # Importar funciones específicas
+        if hasattr(predict_module, "predict"):
+            predict_func = getattr(predict_module, "predict")
+        if hasattr(predict_module, "encode_sequence"):
+            encode_sequence_func = getattr(predict_module, "encode_sequence")
+        if hasattr(predict_module, "load_model_for_predict"):
+            load_model_for_predict = getattr(predict_module, "load_model_for_predict")
+        
         logger.info(f"[INFO] predict module cargado: {mod_name}")
         break
     except Exception:
@@ -1788,9 +1799,18 @@ def predict():
 # Helper centralizado de encoding (evita duplicación en /predict y /api/predict)
 def encode_for_model(seq: str, max_length: int = 300):
     """
-    Codifica la secuencia igual que en train.py usando AA_TO_IDX y padding/truncado.
+    Codifica la secuencia usando encode_sequence de predict.py si está disponible,
+    sino usa el fallback con AA_TO_IDX.
     Retorna un tensor Long [1, L] en DEVICE.
     """
+    # NUEVO: Usar encode_sequence de predict.py si está disponible
+    if encode_sequence_func is not None:
+        try:
+            return encode_sequence_func(seq, max_length=max_length).to(DEVICE)
+        except Exception as e:
+            logger.warning(f"Error usando encode_sequence de predict.py: {e}, usando fallback")
+    
+    # Fallback original
     try:
         from train import AA_TO_IDX
     except Exception:
@@ -1817,16 +1837,14 @@ def api_predict():
     if not seq:
         return jsonify({"error":"sequence required"}), 400
 
-    # VALIDACIÓN ESTRICTA DE ENTRADA (pero NO abortar: clasificar como No-TF si falla)
+    # VALIDACIÓN ESTRICTA DE ENTRADA
     is_valid, error_msg = validate_protein_sequence(seq)
     quality_score = calculate_sequence_quality_score(seq)
     if not is_valid:
         logger.warning(f"[PREDICT] ❌ Secuencia inválida: {error_msg} -> Clasificada como No-TF automáticamente")
-        # Decidir confianza conservadora para secuencia inválida: alta prob No-TF
         confidence = 0.95
         label = "No-TF"
         pred_class = 0
-        # Guardar y cachear el resultado para consistencia
         try:
             key = _cache_key(seq)
             prediction_cache.set(key, {"label": label, "probs": [1.0 - confidence, confidence], "confidence": confidence, "fallback": False})
@@ -1853,7 +1871,7 @@ def api_predict():
             "stats": stats
         }), 200
 
-    # Si la calidad es muy baja, devolver No-TF (manteniendo compatibilidad)
+    # Si la calidad es muy baja, devolver No-TF
     if quality_score < 0.3:
         logger.warning(f"[PREDICT] ⚠️ Secuencia de baja calidad (score: {quality_score:.3f}) -> Clasificada como No-TF")
         confidence = max(0.7, 1.0 - quality_score)
@@ -1884,11 +1902,7 @@ def api_predict():
             "stats": stats
         }), 200
 
-    # Resto de la función sin cambios
     try:
-        # Usar mismo encoding que train.py (centralizado)
-        encoded_tensor = encode_for_model(seq, max_length=300)
-
         # CRÍTICO: Si no hay modelo cargado, FORZAR error
         if MODEL_BACKEND is None or model is None:
             logger.error("[PREDICT] ❌ NO HAY MODELO CARGADO - Intentando cargar ahora...")
@@ -1903,73 +1917,95 @@ def api_predict():
 
         logger.info(f"[PREDICT] ✓ Usando modelo: {MODEL_BACKEND} | Device: {DEVICE}")
 
-        if MODEL_BACKEND == "pytorch":
+        # NUEVO: Usar predict() de predict.py directamente si está disponible
+        if predict_func is not None:
             try:
-                with torch.no_grad():
-                    model.eval()
-                    model.to(DEVICE)
-                    
-                    output = model(encoded_tensor).squeeze()
-                    
-                    logger.info(f"[PREDICT] Output raw shape: {output.shape} | Output: {output}")
-                    
-                    # Determinar el tipo de salida del modelo
-                    if output.dim() == 0:
-                        # Salida escalar (modelo binario con 1 neurona + sigmoid)
-                        logit = float(output.item())
-                        prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
-                        logger.info(f"[PREDICT] Escalar - Logit: {logit:.4f} | Prob TF: {prob_tf:.4f}")
-                    elif output.dim() == 1:
-                        if output.size(0) == 1:
-                            # Vector de tamaño 1 (modelo binario)
-                            logit = float(output[0].item())
-                            prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
-                            logger.info(f"[PREDICT] Vector[1] - Logit: {logit:.4f} | Prob TF: {prob_tf:.4f}")
-                        else:
-                            # Vector de logits multi-clase [logit_no_tf, logit_tf]
-                            probs_t = torch.softmax(output, dim=0).cpu().numpy()
-                            prob_tf = float(probs_t[-1])  # última clase = TF
-                            logger.info(f"[PREDICT] Multi-clase - Probs: {probs_t} | Prob TF: {prob_tf:.4f}")
-                    else:
-                        # Batch: [1, num_classes]
-                        probs_t = torch.softmax(output, dim=-1).cpu().numpy()
-                        prob_tf = float(probs_t[0][-1])  # última clase del primer batch
-                        logger.info(f"[PREDICT] Batch - Probs: {probs_t} | Prob TF: {prob_tf:.4f}")
-                    
-                    probs = np.array([1.0 - prob_tf, prob_tf])
-                        
+                logger.info("[PREDICT] Usando predict() de predict.py")
+                prediction_label, prob_tf = predict_func(model, seq, DEVICE, max_length=300)
+                
+                # Normalizar salida de predict.py
+                probs = np.array([1.0 - prob_tf, prob_tf])
+                
+                logger.info(f"[PREDICT] predict.py devolvió - Label: {prediction_label} | Prob TF: {prob_tf:.4f}")
+                
             except Exception as e:
-                logger.exception(f"❌ Error crítico durante inferencia PyTorch")
-                return jsonify({
-                    "error": "Error en inferencia del modelo",
-                    "details": str(e),
-                    "model_backend": MODEL_BACKEND,
-                    "fallback_used": False
-                }), 500
-
-        elif MODEL_BACKEND == "keras":
-            try:
-                encoded_np = encoded_tensor.squeeze(0).detach().cpu().numpy().astype("float32")
-                encoded_exp = np.expand_dims(encoded_np, axis=0)
-                try:
-                    probs = model.predict(encoded_exp, verbose=0)[0]
-                except Exception:
-                    permuted = np.transpose(encoded_exp, (0, 2, 1))
-                    probs = model.predict(permuted, verbose=0)[0]
-                prob_tf = float(probs[-1])
-                logger.info(f"[PREDICT] Keras - Probs: {probs} | Prob TF: {prob_tf:.4f}")
-            except Exception as e:
-                logger.exception(f"❌ Error crítico durante inferencia Keras")
-                return jsonify({
-                    "error": "Error en inferencia del modelo Keras",
-                    "details": str(e),
-                    "fallback_used": False
-                }), 500
+                logger.exception(f"Error usando predict() de predict.py, usando fallback: {e}")
+                # Fallback a lógica original si predict.py falla
+                raise
         else:
-            return jsonify({
-                "error": f"Backend desconocido: {MODEL_BACKEND}",
-                "fallback_used": False
-            }), 500
+            # Si no hay predict_func, usar lógica original
+            logger.info("[PREDICT] predict.py no disponible, usando lógica interna")
+            
+            # Usar mismo encoding que train.py (centralizado)
+            encoded_tensor = encode_for_model(seq, max_length=300)
+
+            if MODEL_BACKEND == "pytorch":
+                try:
+                    with torch.no_grad():
+                        model.eval()
+                        model.to(DEVICE)
+                        
+                        output = model(encoded_tensor).squeeze()
+                        
+                        logger.info(f"[PREDICT] Output raw shape: {output.shape} | Output: {output}")
+                        
+                        # Determinar el tipo de salida del modelo
+                        if output.dim() == 0:
+                            # Salida escalar (modelo binario con 1 neurona)
+                            logit = float(output.item())
+                            prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
+                            logger.info(f"[PREDICT] Escalar - Logit: {logit:.4f} | Prob TF: {prob_tf:.4f}")
+                        elif output.dim() == 1:
+                            if output.size(0) == 1:
+                                # Vector de tamaño 1 (modelo binario)
+                                logit = float(output[0].item())
+                                prob_tf = float(torch.sigmoid(torch.tensor(logit)).item())
+                                logger.info(f"[PREDICT] Vector[1] - Logit: {logit:.4f} | Prob TF: {prob_tf:.4f}")
+                            else:
+                                # Vector de logits multi-clase [logit_no_tf, logit_tf]
+                                probs_t = torch.softmax(output, dim=0).cpu().numpy()
+                                prob_tf = float(probs_t[-1])  # última clase = TF
+                                logger.info(f"[PREDICT] Multi-clase - Probs: {probs_t} | Prob TF: {prob_tf:.4f}")
+                        else:
+                            # Batch: [1, num_classes]
+                            probs_t = torch.softmax(output, dim=-1).cpu().numpy()
+                            prob_tf = float(probs_t[0][-1])  # última clase del primer batch
+                            logger.info(f"[PREDICT] Batch - Probs: {probs_t} | Prob TF: {prob_tf:.4f}")
+                        
+                        probs = np.array([1.0 - prob_tf, prob_tf])
+                        
+                except Exception as e:
+                    logger.exception(f"❌ Error crítico durante inferencia PyTorch")
+                    return jsonify({
+                        "error": "Error en inferencia del modelo",
+                        "details": str(e),
+                        "model_backend": MODEL_BACKEND,
+                        "fallback_used": False
+                    }), 500
+
+            elif MODEL_BACKEND == "keras":
+                try:
+                    encoded_np = encoded_tensor.squeeze(0).detach().cpu().numpy().astype("float32")
+                    encoded_exp = np.expand_dims(encoded_np, axis=0)
+                    try:
+                        probs = model.predict(encoded_exp, verbose=0)[0]
+                    except Exception:
+                        permuted = np.transpose(encoded_exp, (0, 2, 1))
+                        probs = model.predict(permuted, verbose=0)[0]
+                    prob_tf = float(probs[-1])
+                    logger.info(f"[PREDICT] Keras - Probs: {probs} | Prob TF: {prob_tf:.4f}")
+                except Exception as e:
+                    logger.exception(f"❌ Error crítico durante inferencia Keras")
+                    return jsonify({
+                        "error": "Error en inferencia del modelo Keras",
+                        "details": str(e),
+                        "fallback_used": False
+                    }), 500
+            else:
+                return jsonify({
+                    "error": f"Backend desconocido: {MODEL_BACKEND}",
+                    "fallback_used": False
+                }), 500
 
         # Postprocesado con UMBRAL MÁS ESTRICTO y penalización por calidad
         if not isinstance(probs, np.ndarray):
@@ -1980,7 +2016,6 @@ def api_predict():
         prob_tf = float(probs[1]) if len(probs) > 1 else float(probs[0])
         
         # AJUSTAR probabilidad según calidad de secuencia
-        # Si la calidad es baja, reducir la confianza del modelo
         adjusted_prob_tf = prob_tf * quality_score
         
         # UMBRAL MÁS ESTRICTO: solo clasificar como TF si prob >= 0.7 Y quality >= 0.5
@@ -2002,7 +2037,13 @@ def api_predict():
         logger.info(f"  └─ Confianza: {confidence:.4f}")
         logger.info(f"  └─ Modelo usado: {MODEL_BACKEND}")
         
-        prediction_cache.set(key, {"label": label, "probs": probs.tolist(), "confidence": confidence, "fallback": False})
+        # Cachear y guardar
+        try:
+            key = _cache_key(seq)
+            prediction_cache.set(key, {"label": label, "probs": probs.tolist(), "confidence": confidence, "fallback": False})
+        except Exception:
+            pass
+            
         save_prediction(session.get("username"), seq, label, confidence)
         stats["total"] += 1
         if pred == 1:
@@ -2479,15 +2520,15 @@ if __name__ == "__main__":
                 logger.info(f"  └─ Output type: {type(test_output)}")
                 logger.info("="*60 + "\n")
             except Exception as e:
-                logger.error(f"❌ Test de inferencia falló: {e}\n")
+                logger.error(f"Test de inferencia falló: {e}\n")
                 
     except Exception:
-        logger.exception("❌ Fallo crítico al intentar cargar el modelo en el arranque")
+        logger.exception("Fallo crítico al intentar cargar el modelo en el arranque")
 
     info = get_system_info()
-    logger.info(f"🌐 Host: {info.get('ip','127.0.0.1')}")
-    logger.info(f"🔧 Sistema: {info.get('system','N/A')}")
-    logger.info(f"👥 Usuarios activos: {info.get('active_users',0)}")
+    logger.info(f" Host: {info.get('ip','127.0.0.1')}")
+    logger.info(f" Sistema: {info.get('system','N/A')}")
+    logger.info(f" Usuarios activos: {info.get('active_users',0)}")
     logger.info("="*60 + "\n")
 
     debug_mode = os.environ.get("FLASK_DEBUG", "0") == "1"

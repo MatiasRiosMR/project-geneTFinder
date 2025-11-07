@@ -37,6 +37,39 @@
             <div class="pct">Confianza: {{ "%.2f"|format(confidence * 100) }}%</div>
             <div class="bar"><div style="width: {{ "%.1f"|format(confidence * 100) }}%"></div></div>
             <div style="margin-top:0.8rem;color:#9fb0bf;font-size:0.95rem;">Secuencia (recortada): <code>{{ seq[:80] }}{% if seq|length > 80 %}...{% endif %}</code></div>
+
+            <!-- NUEVO: Mostrar alternativas (modelo + heurístico) si están disponibles -->
+            {% if alternatives %}
+                <hr style="margin:1rem 0;border-color:rgba(255,255,255,0.04)"/>
+                <div style="color:#9fb0bf;font-size:0.95rem;margin-bottom:0.4rem;">Opciones de respuesta:</div>
+                <ul style="list-style:none;padding:0;margin:0 0 0.8rem 0;">
+                    {% for opt in alternatives %}
+                        <li style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.01);">
+                            <div>
+                                <div style="font-weight:700;color:#e6f7ff;">{{ opt.label }}</div>
+                                <div style="font-size:0.85rem;color:#9fb0bf;">Fuente: {{ opt.source }}</div>
+                            </div>
+                            <div style="text-align:right">
+                                <div style="font-weight:700;color:#7ce07c;">{{ '%.1f'|format(opt.confidence * 100) }}%</div>
+                                <div style="font-size:0.8rem;color:#9fb0bf;">({{ opt.probs }})</div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+
+            <!-- NUEVO: mostrar warnings/validation messages si el servidor los pasa -->
+            {% if validation_messages or warnings %}
+                <div style="margin-top:0.6rem;padding:0.6rem;border-radius:8px;background:rgba(255,99,71,0.04);color:#ffd6c2">
+                    <strong>Advertencias:</strong>
+                    <ul style="margin:8px 0 0 1rem;color:#ffd6c2;">
+                        {% for w in (validation_messages or warnings) %}
+                            <li style="margin:6px 0;font-size:0.95rem;">{{ w }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% endif %}
+
             <div class="actions">
                 <!-- Nuevo botón: volver atrás en el historial del navegador -->
                 <button id="backBtn" class="btn primary" type="button" aria-label="Volver atrás">Volver atrás</button>
