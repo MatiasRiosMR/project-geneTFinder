@@ -413,6 +413,18 @@
       "sequence": "ADASDSADSADSDDASDASDASDSADASDSADASFASFD",
       "result": "TF",
       "confidence": 0.7036709785461426
+    },
+    {
+      "timestamp": "2025-11-08T11:36:22.384415",
+      "sequence": "asdasdsadsadasdasdasaddddddddddddddddddddddd",
+      "result": "TF",
+      "confidence": 0.7087303996086121
+    },
+    {
+      "timestamp": "2025-11-08T11:36:33.819901",
+      "sequence": "asdasdsadsadasdasdasadddddddddddddddddddddddAAAAAAAAAAAAAAAAA",
+      "result": "TF",
+      "confidence": 0.6993584632873535
     }
   ],
   "AlejoOrtega": [
@@ -537,6 +549,12 @@
       "sequence": "VHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFE",
       "result": "TF",
       "confidence": 0.6485884189605713
+    },
+    {
+      "timestamp": "2025-11-08T11:41:00.508858",
+      "sequence": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "result": "No-TF",
+      "confidence": 0.49999964237213135
     }
   ]
 }
