@@ -4,9 +4,9 @@
     "password_hash": "scrypt:32768:8:1$9OvgZsqGj81ZKUXi$08384990eb9435ed01fa01b34220903fbc9130fc00888074d3a94c03fd28b4df2f15899c55b707c97fe55768e0657aaf61ace2c78a22e5b6ab3d0d6b5c475263",
     "role": "admin",
     "created_at": "2025-10-17T17:34:11.172898",
-    "connected": true,
+    "connected": false,
     "device": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-    "last_activity": "2025-11-06T21:19:32.477729"
+    "last_activity": "2025-11-10T09:43:50.305212"
   },
   "emiliavergara": {
     "username": "emiliavergara",
@@ -26,22 +26,19 @@
     "device": null,
     "last_activity": "2025-10-27T13:12:12.988828"
   },
-  "Estudiante": {
-    "username": "Estudiante",
-    "password_hash": "scrypt:32768:8:1$MIMbeZnCA2eK25Zl$5dc7b6c890ddf20a728b158a03b51b6fcabf93088594d234a9a799c13786179f6096be52cbf32d31bd99ae7ca2acf0e03488e892a2e9902a98b09bfeca2e42a2",
+  "Profesores": {
+    "username": "Profesores",
+    "password_hash": "scrypt:32768:8:1$Iw2Iyo47X1yq4By3$23f15c25f0c98dcffe6dec20d860e780f44135dd5e46c8c84036236f8ff9924899ee8bf342761600ede0eca96bb0e62312a77ffd09a53687046de9c908ff1696",
     "role": "user",
-    "created_at": "2025-11-04T09:55:59.594813",
-    "connected": true,
-    "device": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
-    "last_activity": "2025-11-04T11:12:50.726537"
+    "created_at": "2025-11-10T09:42:37.348949"
   },
-  "user": {
-    "username": "user",
-    "password_hash": "scrypt:32768:8:1$AMCLIYJvvr6U2VY7$493520164456d25618eacac6f79629b22f07276c70289e563d9a93c40f022ec9e1d9a22146ceb92331b10526485d8ea0bc9d4072e983b0bc1084ce34bbd9165f",
+  "Estudiantes": {
+    "username": "Estudiantes",
+    "password_hash": "scrypt:32768:8:1$MVlVRlL2XcOu4uTe$74be79f81c515f238f8ef13c08700b25ecb108e4e700919253f0b7ede12402867ad3be0d189c9249a65a6bc12217216c64477c343fdf2d3187324b65ef252cc6",
     "role": "user",
-    "created_at": "2025-11-06T21:20:18.252836",
+    "created_at": "2025-11-10T09:43:05.701330",
     "connected": false,
     "device": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36",
-    "last_activity": "2025-11-06T21:44:34.729070"
+    "last_activity": "2025-11-10T09:47:58.235808"
   }
 }

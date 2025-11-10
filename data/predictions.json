@@ -425,6 +425,12 @@
       "sequence": "asdasdsadsadasdasdasadddddddddddddddddddddddAAAAAAAAAAAAAAAAA",
       "result": "TF",
       "confidence": 0.6993584632873535
+    },
+    {
+      "timestamp": "2025-11-10T09:34:35.586675",
+      "sequence": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+      "result": "No-TF",
+      "confidence": 0.4998893737792969
     }
   ],
   "AlejoOrtega": [
@@ -506,55 +512,5 @@
       "label": "No-TF",
       "notes": "Ejemplo sintético de secuencia no TF"
     }
-  },
-  "Estudiante": [
-    {
-      "timestamp": "2025-11-04T10:51:32.337565",
-      "sequence": "KRRIRRERNKMAAAKCRNRRRE",
-      "result": "No-TF",
-      "confidence": 0.95
-    },
-    {
-      "timestamp": "2025-11-04T10:53:37.420395",
-      "sequence": "KRRIRRERNKMAAAKCRNRRRE",
-      "result": "No-TF",
-      "confidence": 0.95
-    },
-    {
-      "timestamp": "2025-11-07T11:53:33.652624",
-      "sequence": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDI",
-      "result": "TF",
-      "confidence": 0.702944815158844
-    },
-    {
-      "timestamp": "2025-11-07T11:53:50.713447",
-      "sequence": "DLAGHGQTGVDGPSIVHRKCFYEEYPDRHPPLKSKVYELPDGQVITIGN",
-      "result": "TF",
-      "confidence": 0.6420876383781433
-    },
-    {
-      "timestamp": "2025-11-07T11:57:30.064753",
-      "sequence": "DLAGHGQTGVDGPSIVHRKCFYEEYPDRHPPLKSKVYELPDGQVITIGN",
-      "result": "TF",
-      "confidence": 0.6420876383781433
-    },
-    {
-      "timestamp": "2025-11-07T11:58:44.359189",
-      "sequence": "MEEPQSDPSVEPPLSQETFSDLWKLLPENNVLSPLPSQAMDDLMLSPDDI",
-      "result": "TF",
-      "confidence": 0.702944815158844
-    },
-    {
-      "timestamp": "2025-11-07T11:59:03.097916",
-      "sequence": "VHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFE",
-      "result": "TF",
-      "confidence": 0.6485884189605713
-    },
-    {
-      "timestamp": "2025-11-08T11:41:00.508858",
-      "sequence": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-      "result": "No-TF",
-      "confidence": 0.49999964237213135
-    }
-  ]
+  }
 }

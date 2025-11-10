@@ -944,8 +944,6 @@ def calculate_sequence_quality_score(seq: str) -> float:
     
     return diversity  # Score simple basado solo en diversidad
 
-# ...existing code...
-
 # ------------------ Rutas auxiliares (NUEVO) ------------------
 @app.route("/health")
 def health():
@@ -1384,8 +1382,6 @@ def _render_predict_form():
       .ex-btn.notf{background:linear-gradient(90deg,#777,#444)}
       .warning{color:#ffb4b4;margin-top:8px}
       .card{background:#0f1720;border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,.04);margin-top:12px}
-      .label-tf{color:#7cfc9a;font-weight:700}
-      .label-notf{color:#fca5a5;font-weight:700}
       .small{font-size:13px;color:#9ca3b0}
       .loader{width:16px;height:16px;border-radius:50%;border:3px solid rgba(255,255,255,.06);border-top-color:#7c5cff;animation:spin .9s linear infinite;display:inline-block;vertical-align:middle}
       @keyframes spin{to{transform:rotate(360deg)}}
@@ -1423,7 +1419,6 @@ def _render_predict_form():
 
     <div class="card" id="resultCard" style="display:none;margin-top:18px">
       <h3>Resultado</h3>
-      <div id="labelRow" class="row"></div>
       <div id="confRow" class="row"></div>
       <div id="qualityRow" class="row small"></div>
       <div id="cachedRow" class="row small muted"></div>
@@ -1435,7 +1430,6 @@ def _render_predict_form():
       const seqInput = document.getElementById('sequence');
       const form = document.getElementById('predictForm');
       const resultCard = document.getElementById('resultCard');
-      const labelRow = document.getElementById('labelRow');
       const confRow = document.getElementById('confRow');
       const qualityRow = document.getElementById('qualityRow');
       const cachedRow = document.getElementById('cachedRow');
@@ -1474,10 +1468,8 @@ def _render_predict_form():
             return;
           }
           const data = await r.json();
-          // Etiqueta y confianza
-          const label = data.label || (data.class===1 ? 'TF' : 'No-TF');
+          // Mostrar solo confianza
           const conf = data.confidence != null ? Number(data.confidence).toFixed(4) : 'N/A';
-          labelRow.innerHTML = "Etiqueta: <span class='"+(label.startsWith('TF')?'label-tf':'label-notf')+"'>"+label+"</span>";
           confRow.textContent = "Confianza: " + conf;
           qualityRow.textContent = data.quality_score != null ? ("Quality score: " + Number(data.quality_score).toFixed(3)) : "";
           cachedRow.textContent = data.cached ? "(resultado servido desde caché)" : "";
